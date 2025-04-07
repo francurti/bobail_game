@@ -4,6 +4,8 @@ class Position implements Comparable<Position> {
   final int linearPosition;
 
   static const rowSize = 5;
+  static const boardSize = 25;
+  static const middle = 12;
 
   static _linearPosition(int x, int y) {
     return y * rowSize + x;
@@ -65,9 +67,7 @@ class Position implements Comparable<Position> {
     return adyacentPosition;
   }
 
-  int getPosition() {
-    return linearPosition;
-  }
+  int get position => linearPosition;
 
   @override
   int compareTo(Position other) {

@@ -1,4 +1,4 @@
-import 'package:bobail_mobile/board_model/position.dart';
+import 'package:bobail_mobile/board_model/board_movement_rules/position.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
