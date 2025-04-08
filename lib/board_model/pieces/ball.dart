@@ -4,6 +4,10 @@ import 'package:bobail_mobile/board_model/board_movement_rules/position.dart';
 import 'package:bobail_mobile/board_model/pieces/piece.dart';
 import 'package:bobail_mobile/board_model/pieces/piece_kind.dart';
 
+abstract class MovablePreview {
+  List<int> previewMove(int directionIndex);
+}
+
 class Ball extends Piece {
   static final Movementmanager mc = Movementmanager.instance;
 
@@ -40,9 +44,26 @@ class Ball extends Piece {
     List<int> positions = mc.getLine(super.positionIndex, newPosition);
 
     if (_isFirstAvailable(positions)) {
-      int lastPosition =
-          positions.takeWhile((position) => board.isAvailable(position)).last;
+      int lastPosition = _availablePositions(positions).last;
       _setNewPositionTo(lastPosition);
     }
+  }
+
+  Set<int> previewMove(int indexDirection) {
+    List<int> positions = mc.getLine(super.positionIndex, indexDirection);
+
+    return _availablePositions(positions).toSet();
+  }
+
+  Iterable<int> _availablePositions(List<int> positions) {
+    return positions.takeWhile((position) => board.isAvailable(position));
+  }
+
+  @override
+  Set<int> getAvailableMovesPreview() {
+    return getAdjacentAvailable().fold<Set<int>>(
+      <int>{},
+      (acc, dir) => acc..addAll(previewMove(dir)),
+    );
   }
 }

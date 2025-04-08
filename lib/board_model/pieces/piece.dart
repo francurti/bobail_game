@@ -13,6 +13,7 @@ abstract class Piece {
     bind();
   }
 
+  Set<int> getAvailableMovesPreview();
   void bind();
   void move(int newPosition);
 

@@ -3,6 +3,8 @@ import 'package:bobail_mobile/board_model/pieces/ball.dart';
 import 'package:bobail_mobile/board_model/pieces/bobail.dart';
 import 'package:bobail_mobile/board_model/pieces/piece.dart';
 import 'package:bobail_mobile/board_model/pieces/piece_kind.dart';
+import 'package:bobail_mobile/board_model/visualization/board_state.dart';
+import 'package:bobail_mobile/board_model/visualization/move_error_response.dart';
 
 class BobailGame {
   static final int piecesPerPlayer = 5;
@@ -26,24 +28,29 @@ class BobailGame {
     }
   }
 
-  // TODO make a better return object so that the frontend can get a reason to why this does not work.
-  bool _validMovement(
+  MoveResult _validMovement(
     int oldBallPosition,
     int adjacentIndex,
     int? newBobailPosition,
   ) {
     if (!_isBobailMovementValid(newBobailPosition)) {
-      return false;
+      return MoveFailure(MoveErrorResponse.invalidBobailMovement);
     }
 
     var ballToMove = board.getPieceByPosition(oldBallPosition);
-    if (ballToMove == null ||
-        !_isPieceCorrectColor(ballToMove) ||
-        !ballToMove.canMove(adjacentIndex)) {
-      return false;
+    if (ballToMove == null) {
+      return MoveFailure(MoveErrorResponse.noSuchPiece);
     }
 
-    return true;
+    if (!_isPieceCorrectColor(ballToMove)) {
+      return MoveFailure(MoveErrorResponse.wrongPiece);
+    }
+
+    if (!ballToMove.canMove(adjacentIndex)) {
+      return MoveFailure(MoveErrorResponse.invalidMovement);
+    }
+
+    return MoveSuccess();
   }
 
   bool _isBobailMovementValid(int? newBobailPosition) {
@@ -62,12 +69,24 @@ class BobailGame {
         : piece.pieceKind == PieceKind.black;
   }
 
-  void move(int oldBallPosition, int adjacentIndex, int? newBobailPosition) {
-    if (_validMovement(oldBallPosition, adjacentIndex, newBobailPosition)) {
+  MoveResult move(
+    int oldBallPosition,
+    int adjacentIndex,
+    int? newBobailPosition,
+  ) {
+    var moveCheck = _validMovement(
+      oldBallPosition,
+      adjacentIndex,
+      newBobailPosition,
+    );
+
+    if (moveCheck.isOk) {
       var ball = board.getPieceByPosition(oldBallPosition)!;
       _executeMove(newBobailPosition, ball, adjacentIndex);
       _advanceToNextTurn();
     }
+
+    return moveCheck;
   }
 
   void _executeMove(int? newBobailPosition, Piece piece, int adjacentIndex) {
@@ -84,5 +103,9 @@ class BobailGame {
 
   bool isGameOver() {
     return (!bobail.isAbleToMove() || bobail.isInDefinitePosition());
+  }
+
+  BoardState showBoardState() {
+    return BoardState(turnCounter, board.getVisualBoard(), isWhiteTurn);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:bobail_mobile/board_model/pieces/ball.dart';
 import 'package:bobail_mobile/board_model/pieces/bobail.dart';
 import 'package:bobail_mobile/board_model/pieces/piece.dart';
+import 'package:bobail_mobile/board_model/pieces/piece_kind.dart';
 import 'package:bobail_mobile/board_model/visualization/piece_view_model.dart';
 
 class Board {
@@ -53,5 +54,16 @@ class Board {
     }
 
     return visualBoard;
+  }
+
+  List<PieceViewModel> getVisualPieces(PieceKind kind) {
+    switch (kind) {
+      case PieceKind.bobail:
+        return [PieceViewModel(_bobail)];
+      case PieceKind.white:
+        return _whitePieces.map((piece) => PieceViewModel(piece)).toList();
+      case PieceKind.black:
+        return _blackPieces.map((piece) => PieceViewModel(piece)).toList();
+    }
   }
 }
