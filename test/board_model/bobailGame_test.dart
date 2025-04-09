@@ -54,6 +54,33 @@ void main() {
       expect(result.error, MoveErrorResponse.invalidBobailMovement);
     });
 
+    test("Bobail does not interfer with normal piece movement", () {
+      final result = game.move(2, 7, null);
+      // W  W  v   W  W
+      // 5  6  W   8  9
+      // 10 11 Bo 13 14
+      // 15 16 17 18 19
+      // B  B  B  B  B
+
+      final result2 = game.move(22, 18, 8);
+      // W  W  2   W  W
+      // 5  6  W   Bo  9
+      // 10 11 12 13  B
+      // 15 16 17 18 19
+      // B  B  22  B  B
+
+      final result3 = game.move(3, 8, 9);
+      // W  W  2   3  W
+      // 5  6  W   8  Bo
+      // 10 11 Bo 13 14
+      // 15 16 17 W  19
+      // B  B  B  B  B
+
+      expect(result.isOk, true);
+      expect(result2.isOk, true);
+      expect(result3.isOk, true);
+    });
+
     test('Bobail Preview', () {
       final gameState = game.showBoardState();
       expect(gameState.isWhiteTurn, true);

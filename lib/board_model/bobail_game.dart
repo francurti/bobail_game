@@ -42,7 +42,7 @@ class BobailGame {
       return MoveFailure(MoveErrorResponse.noSuchPiece);
     }
 
-    if (!_isPieceCorrectColor(ballToMove)) {
+    if (!isMoveableThisTurn(ballToMove)) {
       return MoveFailure(MoveErrorResponse.wrongPiece);
     }
 
@@ -63,7 +63,7 @@ class BobailGame {
     return false;
   }
 
-  bool _isPieceCorrectColor(Piece piece) {
+  bool isMoveableThisTurn(Piece piece) {
     return isWhiteTurn
         ? piece.pieceKind == PieceKind.white
         : piece.pieceKind == PieceKind.black;
@@ -74,6 +74,10 @@ class BobailGame {
     int adjacentIndex,
     int? newBobailPosition,
   ) {
+    print(
+      'from: ${oldBallPosition} to: ${adjacentIndex} bobail: ${newBobailPosition}',
+    );
+
     var moveCheck = _validMovement(
       oldBallPosition,
       adjacentIndex,

@@ -1,23 +1,24 @@
-import 'package:bobail_mobile/board_model/pieces/bobail.dart';
 import 'package:bobail_mobile/board_model/pieces/piece.dart';
 import 'package:bobail_mobile/board_model/pieces/piece_kind.dart';
 
 class PieceViewModel {
-  final PieceKind kind;
+  final PieceKind _kind;
   final int position;
-  final bool isBobail;
   final Set<int> movablePreview;
 
+  get isWhite => _kind == PieceKind.white;
+  get isBlack => _kind == PieceKind.black;
+  get isBobail => _kind == PieceKind.bobail;
+
   PieceViewModel(Piece piece)
-    : kind = piece.pieceKind,
+    : _kind = piece.pieceKind,
       position = piece.positionIndex,
-      isBobail = piece is Bobail && piece.pieceKind == PieceKind.bobail,
       movablePreview = piece.getAvailableMovesPreview();
 
   @override
   String toString() {
     final type =
-        isBobail ? 'Bobail' : (kind == PieceKind.white ? 'White' : 'Black');
+        isBobail ? 'Bobail' : (_kind == PieceKind.white ? 'White' : 'Black');
     final moves = movablePreview.isEmpty ? 'No moves' : movablePreview.toList();
 
     return '$type piece at $position → Movable to: $moves';

@@ -7,6 +7,14 @@ class BoardState {
 
   BoardState(this.turn, this.boardViewModel, this.isWhiteTurn);
 
+  bool get isFirstTurn => turn == 0;
+
+  bool isThatPieceTurn(PieceViewModel piece) {
+    return (piece.isBobail) ||
+        (piece.isWhite && isWhiteTurn) ||
+        (piece.isBlack && !isWhiteTurn);
+  }
+
   @override
   String toString() {
     String isWhite = isWhiteTurn ? "White's turn" : "Black's turn";
