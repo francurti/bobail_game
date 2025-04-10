@@ -8,7 +8,7 @@ class PieceIndicator {
 
   @override
   String toString() {
-    return "isMoveAble: ${isMoveable}, position: ${_pieceViewModel.position}";
+    return "isMoveable: $isMoveable, position: ${_pieceViewModel.position}";
   }
 
   bool get isBobail => _pieceViewModel.isBobail;

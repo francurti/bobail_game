@@ -1,13 +1,17 @@
 enum MoveErrorResponse {
-  wrongPiece,
-  noSuchPiece,
-  invalidMovement,
-  invalidBobailMovement,
+  wrongPiece('Wrong Piece selected'),
+  noSuchPiece('No such piece on board'),
+  invalidMovement('That movement is not valid'),
+  invalidBobailMovement('That bobail movement is not valid');
+
+  const MoveErrorResponse(this.message);
+
+  final String message;
 }
 
 abstract class MoveResult {
-  get isOk;
-  get error;
+  bool get isOk;
+  MoveErrorResponse? get error;
 }
 
 class MoveSuccess extends MoveResult {

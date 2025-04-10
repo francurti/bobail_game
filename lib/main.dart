@@ -1,4 +1,4 @@
-import 'package:bobail_mobile/ui_interface/board.dart';
+import 'package:bobail_mobile/pages/main_menu.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,15 +12,9 @@ class BobailApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Bobail game',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Bobail'),
-          elevation: 1,
-          backgroundColor: Colors.green,
-        ),
-        body: const Center(child: Board()),
-        backgroundColor: Colors.lightGreen,
-      ),
+      debugShowCheckedModeBanner: false,
+
+      home: MainMenu(),
     );
   }
 }

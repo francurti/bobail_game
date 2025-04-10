@@ -7,15 +7,32 @@ abstract class Piece {
   final Board board;
   final PieceKind pieceKind;
   Position _currentPosition;
+  Position _previousPosition;
 
   Piece(this.board, this.pieceKind, Position position)
-    : _currentPosition = position {
+    : _currentPosition = position,
+      _previousPosition = position {
     bind();
   }
 
   Set<int> getAvailableMovesPreview();
   void bind();
   void move(int newPosition);
+
+  void undoMove() {
+    if (board.allowsToUndoMoveOf(this)) {
+      board.notifyPieceMovement(
+        this,
+        _currentPosition.linearPosition,
+        _previousPosition.linearPosition,
+      );
+      _currentPosition = _previousPosition;
+    }
+  }
+
+  void savePosition() {
+    _previousPosition = _currentPosition;
+  }
 
   Set<int> getAdjacentAvailable() {
     return Movementmanager.instance

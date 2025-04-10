@@ -31,10 +31,10 @@ class BobailGame {
   MoveResult _validMovement(
     int oldBallPosition,
     int adjacentIndex,
-    int? newBobailPosition,
+    MoveResult bobailMoveResult,
   ) {
-    if (!_isBobailMovementValid(newBobailPosition)) {
-      return MoveFailure(MoveErrorResponse.invalidBobailMovement);
+    if (!bobailMoveResult.isOk) {
+      return bobailMoveResult;
     }
 
     var ballToMove = board.getPieceByPosition(oldBallPosition);
@@ -74,30 +74,28 @@ class BobailGame {
     int adjacentIndex,
     int? newBobailPosition,
   ) {
-    print(
-      'from: ${oldBallPosition} to: ${adjacentIndex} bobail: ${newBobailPosition}',
-    );
+    MoveResult bobailMove = _attemptBobailMovement(newBobailPosition);
 
-    var moveCheck = _validMovement(
-      oldBallPosition,
-      adjacentIndex,
-      newBobailPosition,
-    );
-
-    if (moveCheck.isOk) {
-      var ball = board.getPieceByPosition(oldBallPosition)!;
-      _executeMove(newBobailPosition, ball, adjacentIndex);
-      _advanceToNextTurn();
+    var moveCheck = _validMovement(oldBallPosition, adjacentIndex, bobailMove);
+    if (!moveCheck.isOk) {
+      bobail.undoMove();
+      return moveCheck;
     }
+    var ball = board.getPieceByPosition(oldBallPosition)!;
+    ball.move(adjacentIndex);
+    _advanceToNextTurn();
 
     return moveCheck;
   }
 
-  void _executeMove(int? newBobailPosition, Piece piece, int adjacentIndex) {
+  MoveResult _attemptBobailMovement(int? newBobailPosition) {
+    if (!_isBobailMovementValid(newBobailPosition)) {
+      return MoveFailure(MoveErrorResponse.invalidBobailMovement);
+    }
     if (newBobailPosition != null) {
       bobail.move(newBobailPosition);
     }
-    piece.move(adjacentIndex);
+    return MoveSuccess();
   }
 
   void _advanceToNextTurn() {
@@ -107,6 +105,13 @@ class BobailGame {
 
   bool isGameOver() {
     return (!bobail.isAbleToMove() || bobail.isInDefinitePosition());
+  }
+
+  String getWinner() {
+    if (isGameOver()) {
+      return isWhiteTurn ? 'Black' : 'White';
+    }
+    throw StateError('There\'s no winner yet');
   }
 
   BoardState showBoardState() {

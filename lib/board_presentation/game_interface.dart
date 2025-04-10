@@ -3,13 +3,12 @@ import 'package:bobail_mobile/board_model/visualization/move_error_response.dart
 import 'package:bobail_mobile/board_presentation/board_indicators.dart';
 
 class GameInterface {
-  final BobailGame bobailGame;
+  BobailGame bobailGame;
   int? bobailDestionationPosition;
 
   GameInterface.bobail() : bobailGame = BobailGame();
 
   MoveResult makeMove(int from, int to) {
-    print('making move $from towards $to and bobail moves to $bobailPreview');
     return bobailGame.move(from, to, bobailPreview);
   }
 
@@ -24,6 +23,21 @@ class GameInterface {
     return bobailGame.isGameOver();
   }
 
+  String winner() {
+    try {
+      return bobailGame.getWinner();
+    } catch (e) {
+      return 'no one yet';
+    }
+  }
+
+  void resetGame() {
+    bobailGame = BobailGame();
+    bobailDestionationPosition = null;
+  }
+
   int? get bobailPreview => bobailDestionationPosition;
   set bobailPreview(int? to) => bobailDestionationPosition = to;
+
+  String get bobailPlayerTurn => bobailGame.isWhiteTurn ? "White's" : "Black's";
 }

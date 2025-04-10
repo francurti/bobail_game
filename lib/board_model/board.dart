@@ -9,8 +9,13 @@ class Board {
   final List<Ball> _whitePieces = [];
   final List<Ball> _blackPieces = [];
   final Map<int, Piece> occupiedPositions = {};
+  Piece? lastMovedPiece;
 
   Board();
+
+  bool allowsToUndoMoveOf(Piece piece) {
+    return lastMovedPiece != null && piece == lastMovedPiece;
+  }
 
   bool isAvailable(int position) {
     return !occupiedPositions.containsKey(position);
@@ -42,6 +47,7 @@ class Board {
   void notifyPieceMovement(Piece piece, int currentPosition, int newPosition) {
     occupiedPositions.remove(currentPosition);
     occupiedPositions[newPosition] = piece;
+    lastMovedPiece = piece;
   }
 
   List<PieceViewModel?> getVisualBoard() {

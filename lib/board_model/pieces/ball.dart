@@ -34,14 +34,48 @@ class Ball extends Piece {
   }
 
   void _setNewPositionTo(int newPosition) {
+    super.savePosition();
     Position newCurrentPosition = mc.getPosition(newPosition);
     super.board.notifyPieceMovement(this, super.positionIndex, newPosition);
     super.position = newCurrentPosition;
   }
 
   @override
+  bool canMove(int newPosition) {
+    Set<int> adjacentAvailable = super.getAdjacentAvailable();
+    bool isAdjacent = adjacentAvailable.contains(newPosition);
+
+    return isAdjacent || _isPositionReachable(adjacentAvailable, newPosition);
+  }
+
+  bool _isPositionReachable(Set<int> adjacent, int newPosition) {
+    //From every adjacent, get the reachability line (not calculated with board yet)
+    List<int> line = _getReachableLine(adjacent, newPosition);
+
+    return line.isNotEmpty && _availablePositions(line).contains(newPosition);
+  }
+
+  List<int> _getReachableLine(Set<int> adjacent, int newPosition) {
+    //From every adjacent, get the reachability line (not calculated with board yet)
+    Iterable<List<int>> positions = adjacent.map(
+      (position) => mc.getLine(super.positionIndex, position),
+    );
+
+    //Find a line that contains the intended position. If it does not exist returns false
+    List<int> line = positions.singleWhere(
+      (line) => line.contains(newPosition),
+      orElse: () => [],
+    );
+    return line;
+  }
+
+  @override
   void move(int newPosition) {
     List<int> positions = mc.getLine(super.positionIndex, newPosition);
+
+    if (positions.isEmpty) {
+      positions = _getReachableLine(super.getAdjacentAvailable(), newPosition);
+    }
 
     if (_isFirstAvailable(positions)) {
       int lastPosition = _availablePositions(positions).last;

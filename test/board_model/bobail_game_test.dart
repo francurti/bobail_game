@@ -91,5 +91,31 @@ void main() {
         equals({5, 10, 15, 6}),
       );
     });
+
+    test('Ball movement to pieces beyond adjacent', () {
+      final result = game.move(0, 15, null);
+      expect(result.isOk, true);
+      expect(game.showBoardState().boardViewModel[15], isNotNull);
+      expect(game.showBoardState().boardViewModel[10], isNull);
+    });
+
+    test('Ball movement to invalid position should give an error', () {
+      final result = game.move(0, 18, null);
+      expect(result.isOk, false);
+      expect(result.error, equals(MoveErrorResponse.invalidMovement));
+    });
+
+    test(
+      'Complex movement where piece can only move where bobail has left',
+      () {
+        final normalMove = game.move(4, 19, null);
+        final normalMove2 = game.move(20, 15, 6);
+        final difficultMove = game.move(0, 6, 7);
+
+        expect(normalMove.isOk, true);
+        expect(normalMove2.isOk, true);
+        expect(difficultMove.isOk, true);
+      },
+    );
   });
 }

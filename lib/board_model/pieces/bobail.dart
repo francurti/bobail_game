@@ -26,6 +26,7 @@ class Bobail extends Piece {
     );
 
     if (isMoveAvailable) {
+      super.savePosition();
       Position newCurrentPosition = mc.getPosition(newPosition);
       super.board.notifyPieceMovement(this, super.positionIndex, newPosition);
       super.position = newCurrentPosition;
