@@ -81,17 +81,6 @@ void main() {
       expect(result3.isOk, true);
     });
 
-    test('Bobail Preview', () {
-      final gameState = game.showBoardState();
-      expect(gameState.isWhiteTurn, true);
-      expect(gameState.turn, 0);
-      expect(gameState.boardViewModel.length, 25);
-      expect(
-        gameState.boardViewModel.first?.movablePreview,
-        equals({5, 10, 15, 6}),
-      );
-    });
-
     test('Ball movement to pieces beyond adjacent', () {
       final result = game.move(0, 15, null);
       expect(result.isOk, true);

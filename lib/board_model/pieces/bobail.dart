@@ -37,9 +37,4 @@ class Bobail extends Piece {
   void bind() {
     board.assignBobail(this);
   }
-
-  @override
-  Set<int> getAvailableMovesPreview() {
-    return getAdjacentAvailable();
-  }
 }

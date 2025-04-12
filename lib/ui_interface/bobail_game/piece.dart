@@ -5,17 +5,13 @@ class Piece extends StatefulWidget {
   final PieceIndicator? piece;
   final bool isHighligthed;
   final bool isBobailPreview;
-  final int row;
   final bool isSelected;
-  final bool isScaled;
 
   const Piece({
     super.key,
     required this.piece,
     required this.isHighligthed,
     required this.isBobailPreview,
-    required this.row,
-    this.isScaled = false,
     required this.isSelected,
   });
 
@@ -68,76 +64,53 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final scale = 1.0 + ((widget.row) / 4) * 0.2; // row 0 = 1.0, row 4 = 1.2
-    final bool isEmpty = widget.piece == null;
-    final Color? baseColor = _correctColor(widget.piece);
-    final bool isPreview = widget.isBobailPreview;
+    final piece = widget.piece;
+    final Color? baseColor = _correctColor(piece);
+    final borderColor = _borderColor();
 
-    final borderColor =
-        isPreview
-            ? Colors.lightGreenAccent
-            : widget.isHighligthed
-            ? Colors.pink
-            : Colors.black;
-
-    return Transform.scale(
-      scale:
-          isEmpty
-              ? 0.7
-              : widget.isScaled
-              ? scale
-              : 1,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color:
-                isPreview ? Colors.lightGreenAccent.withAlpha(204) : baseColor,
-            border: Border.all(color: borderColor, width: 3),
-            boxShadow: [
-              if (isPreview)
-                BoxShadow(
-                  color: Colors.lightGreenAccent.withAlpha(230),
-                  blurRadius: 24,
-                  spreadRadius: 5,
-                  offset: Offset(0, 0),
-                ),
-              if (!isPreview && widget.isHighligthed)
-                BoxShadow(
-                  color: Colors.pinkAccent.withAlpha(153),
-                  blurRadius: 24,
-                  spreadRadius: 5,
-                ),
-            ],
-            gradient:
-                !isEmpty && !isPreview
-                    ? RadialGradient(
-                      colors: [
-                        baseColor?.withAlpha(230) ?? Colors.green,
-                        baseColor?.withAlpha(153) ?? Colors.green,
-                      ],
-                      center: Alignment.topLeft,
-                      radius: 1.2,
-                    )
-                    : null,
-          ),
-          child:
-              isPreview
-                  ? const Center(
-                    child: Icon(Icons.flag, color: Colors.black, size: 28),
-                  )
-                  : null,
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: baseColor,
+          border: Border.all(color: borderColor, width: 3),
+          boxShadow: [
+            if (widget.isBobailPreview)
+              BoxShadow(
+                color: Colors.lightGreenAccent.withAlpha(230),
+                blurRadius: 8,
+                spreadRadius: 2,
+              ),
+            if (!widget.isBobailPreview && widget.isHighligthed)
+              BoxShadow(
+                color: Colors.pinkAccent.withAlpha(153),
+                blurRadius: 24,
+                spreadRadius: 5,
+              ),
+          ],
         ),
       ),
     );
   }
 
   Color? _correctColor(PieceIndicator? piece) {
-    if (piece == null) return Colors.brown[300];
+    final bool isEmpty =
+        piece == null || (piece.isBobail && piece.hasBobailMoved);
+
+    if (widget.isBobailPreview) return Colors.greenAccent;
+    if (isEmpty) return Colors.brown[300];
     if (piece.isWhite) return Colors.white;
     if (piece.isBlack) return Colors.black;
-    if (piece.isBobail) return Colors.greenAccent;
-    return Colors.grey;
+    if (((piece.isBobail) && !piece.hasBobailMoved)) {
+      return Colors.greenAccent;
+    }
+    return Colors.brown[300];
+  }
+
+  Color _borderColor() {
+    if (widget.isBobailPreview) return Colors.lightBlueAccent;
+    if (widget.isHighligthed) return Colors.pink;
+    return Colors.black;
   }
 }

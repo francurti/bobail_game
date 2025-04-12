@@ -98,8 +98,6 @@ class BoardView extends StatelessWidget {
                                       color: const Color(0xFF8D6E63),
                                     ),
                                     child: Piece(
-                                      row: index ~/ rowSize,
-                                      isScaled: false,
                                       piece: piece,
                                       isBobailPreview:
                                           controller.game.bobailPreview ==

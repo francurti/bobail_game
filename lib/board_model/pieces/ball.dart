@@ -4,10 +4,6 @@ import 'package:bobail_mobile/board_model/board_movement_rules/position.dart';
 import 'package:bobail_mobile/board_model/pieces/piece.dart';
 import 'package:bobail_mobile/board_model/pieces/piece_kind.dart';
 
-abstract class MovablePreview {
-  List<int> previewMove(int directionIndex);
-}
-
 class Ball extends Piece {
   static final Movementmanager mc = Movementmanager.instance;
 
@@ -27,10 +23,6 @@ class Ball extends Piece {
     } else {
       throw Exception('Invalid kind for Ball');
     }
-  }
-
-  bool _isFirstAvailable(List<int> positions) {
-    return positions.isNotEmpty && board.isAvailable(positions.first);
   }
 
   void _setNewPositionTo(int newPosition) {
@@ -55,20 +47,6 @@ class Ball extends Piece {
     return line.isNotEmpty && _availablePositions(line).contains(newPosition);
   }
 
-  List<int> _getReachableLine(Set<int> adjacent, int newPosition) {
-    //From every adjacent, get the reachability line (not calculated with board yet)
-    Iterable<List<int>> positions = adjacent.map(
-      (position) => mc.getLine(super.positionIndex, position),
-    );
-
-    //Find a line that contains the intended position. If it does not exist returns false
-    List<int> line = positions.singleWhere(
-      (line) => line.contains(newPosition),
-      orElse: () => [],
-    );
-    return line;
-  }
-
   @override
   void move(int newPosition) {
     List<int> positions = mc.getLine(super.positionIndex, newPosition);
@@ -83,21 +61,25 @@ class Ball extends Piece {
     }
   }
 
-  Set<int> previewMove(int indexDirection) {
-    List<int> positions = mc.getLine(super.positionIndex, indexDirection);
+  List<int> _getReachableLine(Set<int> adjacent, int newPosition) {
+    //From every adjacent, get the reachability line (not calculated with board yet)
+    Iterable<List<int>> positions = adjacent.map(
+      (position) => mc.getLine(super.positionIndex, position),
+    );
 
-    return _availablePositions(positions).toSet();
+    //Find a line that contains the intended position. If it does not exist returns false
+    List<int> line = positions.singleWhere(
+      (line) => line.contains(newPosition),
+      orElse: () => [],
+    );
+    return line;
+  }
+
+  bool _isFirstAvailable(List<int> positions) {
+    return positions.isNotEmpty && board.isAvailable(positions.first);
   }
 
   Iterable<int> _availablePositions(List<int> positions) {
     return positions.takeWhile((position) => board.isAvailable(position));
-  }
-
-  @override
-  Set<int> getAvailableMovesPreview() {
-    return getAdjacentAvailable().fold<Set<int>>(
-      <int>{},
-      (acc, dir) => acc..addAll(previewMove(dir)),
-    );
   }
 }

@@ -32,9 +32,9 @@ class BoardIndicators {
       return null;
     }
     if (piece.isBobail && bobailMovePreselected) {
-      return PieceIndicator(piece, false);
+      return PieceIndicator(this, piece, false);
     }
-    return PieceIndicator(piece, _isMoveable(piece));
+    return PieceIndicator(this, piece, _isMoveable(piece));
   }
 
   List<PieceIndicator?> get piecesIndicator =>
