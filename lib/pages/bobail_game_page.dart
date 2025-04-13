@@ -1,8 +1,22 @@
 import 'package:bobail_mobile/ui_interface/bobail_game/board.dart';
+import 'package:bobail_mobile/ui_interface/settings/board_view_settings.dart';
 import 'package:flutter/material.dart';
 
-class BobailGamePage extends StatelessWidget {
+class BobailGamePage extends StatefulWidget {
   const BobailGamePage({super.key});
+
+  @override
+  State<BobailGamePage> createState() => _BobailGamePageState();
+}
+
+class _BobailGamePageState extends State<BobailGamePage> {
+  late final BoardViewSettings viewSettings;
+
+  @override
+  void initState() {
+    super.initState();
+    viewSettings = BoardViewSettings.local(reversedBoard: false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,8 +26,22 @@ class BobailGamePage extends StatelessWidget {
         elevation: 1,
         backgroundColor: Colors.deepOrangeAccent,
       ),
-      body: const Center(child: Board()),
+      body: Center(child: Board(viewSettings: viewSettings)),
       backgroundColor: Colors.orange,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          setState(() {
+            viewSettings.flip();
+          });
+        },
+        backgroundColor: Colors.deepOrange,
+        icon: const Icon(Icons.sync_alt),
+        label: Text(
+          !viewSettings.isReversedView
+              ? 'Fixed Board View'
+              : 'Follow Player Turn',
+        ),
+      ),
     );
   }
 }

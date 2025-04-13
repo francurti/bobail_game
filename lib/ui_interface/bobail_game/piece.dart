@@ -1,18 +1,15 @@
 import 'package:bobail_mobile/board_presentation/piece_indicators.dart';
+import 'package:bobail_mobile/ui_interface/bobail_game/utils/position_information.dart';
 import 'package:flutter/material.dart';
 
 class Piece extends StatefulWidget {
   final PieceIndicator? piece;
-  final bool isHighligthed;
-  final bool isBobailPreview;
-  final bool isSelected;
+  final PositionInformation renderInformation;
 
   const Piece({
     super.key,
     required this.piece,
-    required this.isHighligthed,
-    required this.isBobailPreview,
-    required this.isSelected,
+    required this.renderInformation,
   });
 
   @override
@@ -24,7 +21,8 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
   late Animation<double> _scaleAnimation;
 
   bool get shouldAnimate =>
-      ((widget.piece?.isMoveable ?? false) && !widget.isSelected);
+      ((widget.piece?.isMoveable ?? false) &&
+          !widget.renderInformation.isSelected);
 
   @override
   void initState() {
@@ -68,6 +66,8 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
     final Color? baseColor = _correctColor(piece);
     final borderColor = _borderColor();
 
+    final isPreview = widget.renderInformation.isBobailPreview;
+    final isHighlight = widget.renderInformation.isHighligthed;
     return ScaleTransition(
       scale: _scaleAnimation,
       child: Container(
@@ -76,13 +76,13 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
           color: baseColor,
           border: Border.all(color: borderColor, width: 3),
           boxShadow: [
-            if (widget.isBobailPreview)
+            if (isPreview)
               BoxShadow(
                 color: Colors.lightGreenAccent.withAlpha(230),
                 blurRadius: 8,
                 spreadRadius: 2,
               ),
-            if (!widget.isBobailPreview && widget.isHighligthed)
+            if (!isPreview && isHighlight)
               BoxShadow(
                 color: Colors.pinkAccent.withAlpha(153),
                 blurRadius: 24,
@@ -98,7 +98,7 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
     final bool isEmpty =
         piece == null || (piece.isBobail && piece.hasBobailMoved);
 
-    if (widget.isBobailPreview) return Colors.greenAccent;
+    if (widget.renderInformation.isBobailPreview) return Colors.greenAccent;
     if (isEmpty) return Colors.brown[300];
     if (piece.isWhite) return Colors.white;
     if (piece.isBlack) return Colors.black;
@@ -109,8 +109,8 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
   }
 
   Color _borderColor() {
-    if (widget.isBobailPreview) return Colors.lightBlueAccent;
-    if (widget.isHighligthed) return Colors.pink;
+    if (widget.renderInformation.isBobailPreview) return Colors.lightBlueAccent;
+    if (widget.renderInformation.isHighligthed) return Colors.pink;
     return Colors.black;
   }
 }

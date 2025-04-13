@@ -2,18 +2,23 @@ import 'package:bobail_mobile/board_model/visualization/move_error_response.dart
 import 'package:bobail_mobile/board_presentation/board_indicators.dart';
 import 'package:bobail_mobile/board_presentation/game_interface.dart';
 import 'package:bobail_mobile/board_presentation/piece_indicators.dart';
+import 'package:bobail_mobile/ui_interface/bobail_game/piece.dart';
+import 'package:bobail_mobile/ui_interface/bobail_game/utils/position_information.dart';
+import 'package:bobail_mobile/ui_interface/settings/board_view_settings.dart';
 import 'package:flutter/material.dart';
 
 class BoardController extends ChangeNotifier {
   late GameInterface _game;
+  final BoardViewSettings viewSettings;
   late Set<int> highlightedPiecesIndex;
   late BoardIndicators boardIndicators;
   int? currentSelectedPiece;
 
-  BoardController() {
+  BoardController(this.viewSettings) {
     _game = GameInterface.bobail();
     highlightedPiecesIndex = <int>{};
     boardIndicators = _game.getBoardIndicators();
+    viewSettings.addListener(() => notifyListeners());
   }
 
   GameInterface get game => _game;
@@ -27,17 +32,31 @@ class BoardController extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool isWhiteOnTheTop() {
+    if (!viewSettings.isReversedView) return true;
+
+    return boardIndicators.turn.isOdd;
+  }
+
+  int getCorrectIndex(int index) {
+    if (!viewSettings.isReversedView) return index;
+
+    return boardIndicators.turn.isEven ? (25 - 1 - index) : index;
+  }
+
   void handleTap(BuildContext context, int position) {
-    final tappedBoardPosition = boardIndicators.piecesIndicator[position];
+    final int actualPosition = getCorrectIndex(position);
+
+    final tappedBoardPosition = boardIndicators.piecesIndicator[actualPosition];
 
     final isEmptyPosition =
         (tappedBoardPosition == null) ||
         (tappedBoardPosition.isBobail && !tappedBoardPosition.isMoveable);
 
     if (tappedBoardPosition != null && tappedBoardPosition.isMoveable) {
-      _handlePieceSelection(tappedBoardPosition, position);
+      _handlePieceSelection(tappedBoardPosition, actualPosition);
     } else if (isEmptyPosition && currentSelectedPiece != null) {
-      _handleMove(context, currentSelectedPiece!, position);
+      _handleMove(context, currentSelectedPiece!, actualPosition);
     }
   }
 
@@ -103,5 +122,27 @@ class BoardController extends ChangeNotifier {
   void _registerBoardMovement() {
     highlightedPiecesIndex.clear();
     boardIndicators = _game.getBoardIndicators();
+  }
+
+  itemBuilder(context, index) {
+    final int renderIndex = getCorrectIndex(index);
+    final PieceIndicator? piece = boardIndicators.piecesIndicator[renderIndex];
+
+    final PositionInformation renderInformation = PositionInformation(
+      highlightedPiecesIndex.contains(renderIndex),
+      game.bobailPreview == renderIndex,
+      currentSelectedPiece == renderIndex,
+    );
+
+    return Material(
+      child: InkWell(
+        onTap: () => handleTap(context, index),
+        customBorder: const CircleBorder(),
+        child: Container(
+          decoration: BoxDecoration(color: const Color(0xFF8D6E63)),
+          child: Piece(piece: piece, renderInformation: renderInformation),
+        ),
+      ),
+    );
   }
 }
