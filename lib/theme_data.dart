@@ -26,7 +26,7 @@ final ThemeData appTheme = ThemeData(
     ),
   ),
   textTheme: const TextTheme(
-    bodyLarge: TextStyle(color: Colors.black87),
-    bodyMedium: TextStyle(color: Colors.black87),
+    bodyLarge: TextStyle(color: Colors.white),
+    bodyMedium: TextStyle(color: Colors.white),
   ),
 );

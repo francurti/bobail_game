@@ -9,7 +9,7 @@ class BobailTutorial extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Material(
-      color: Colors.black.withOpacity(0.7),
+      color: Colors.black87,
       child: Stack(
         children: [
           Center(
@@ -49,7 +49,7 @@ class BobailTutorial extends StatelessWidget {
                       "The movement rules are as follow:\n"
                       "- First Turn: White must move any of its own pieces\n"
                       "- After the first turn: The player must first move the bobail to then be able to move any of their own pieces"
-                      "The piece movement rules are as follow\n"
+                      "\nThe piece movement rules are as follow\n"
                       "- The bobail can only move one square at a time in any direction\n"
                       "- The pieces can move in any direction but must move the maximun distance that they can get in that direction before colliding with another piece",
                       style: TextStyle(color: Colors.white),

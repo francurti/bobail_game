@@ -47,7 +47,7 @@ class PlayButton extends StatelessWidget {
       onPressed: () async {
         Navigator.of(context).push(
           PageRouteBuilder(
-            transitionDuration: const Duration(milliseconds: 400),
+            transitionDuration: const Duration(milliseconds: 600),
             pageBuilder: (_, animation, __) => const BobailGamePage(),
             transitionsBuilder: (_, animation, __, child) {
               final curved = CurvedAnimation(
