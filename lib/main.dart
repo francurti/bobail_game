@@ -1,4 +1,5 @@
 import 'package:bobail_mobile/pages/main_menu.dart';
+import 'package:bobail_mobile/theme_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -16,7 +17,7 @@ class BobailApp extends StatelessWidget {
     return MaterialApp(
       title: 'Bobail game',
       debugShowCheckedModeBanner: false,
-
+      theme: appTheme,
       home: MainMenu(),
     );
   }

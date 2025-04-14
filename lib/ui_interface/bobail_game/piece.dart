@@ -62,8 +62,9 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final piece = widget.piece;
-    final Color? baseColor = _correctColor(piece);
+    final Color baseColor = _correctColor(piece) ?? theme.primaryColor;
     final borderColor = _borderColor();
 
     final isPreview = widget.renderInformation.isBobailPreview;
@@ -99,17 +100,16 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
         piece == null || (piece.isBobail && piece.hasBobailMoved);
 
     if (widget.renderInformation.isBobailPreview) return Colors.greenAccent;
-    if (isEmpty) return Colors.brown[300];
+    if (isEmpty) return null;
     if (piece.isWhite) return Colors.white;
     if (piece.isBlack) return Colors.black;
     if (((piece.isBobail) && !piece.hasBobailMoved)) {
       return Colors.greenAccent;
     }
-    return Colors.brown[300];
+    return null;
   }
 
   Color _borderColor() {
-    if (widget.renderInformation.isBobailPreview) return Colors.lightBlueAccent;
     if (widget.renderInformation.isHighligthed) return Colors.pink;
     return Colors.black;
   }

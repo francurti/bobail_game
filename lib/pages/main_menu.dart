@@ -7,8 +7,10 @@ class MainMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: theme.scaffoldBackgroundColor, // Cream background
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -18,15 +20,17 @@ class MainMenu extends StatelessWidget {
               style: TextStyle(
                 fontSize: 48,
                 fontWeight: FontWeight.bold,
-                color: Colors.brown,
+                color: Colors.white, // a bit darker brown
               ),
             ),
             const SizedBox(height: 32),
-
             MiniBoard(),
             const SizedBox(height: 32),
-
-            PlayButton(),
+            const PlayButton(),
+            const SizedBox(height: 12),
+            const PlayVsAIButton(),
+            const SizedBox(height: 12),
+            const PlaceholderButton(),
           ],
         ),
       ),
@@ -43,15 +47,58 @@ class PlayButton extends StatelessWidget {
       onPressed: () async {
         Navigator.of(context).push(
           PageRouteBuilder(
-            transitionDuration: Duration(milliseconds: 500),
-            pageBuilder: (_, __, ___) => const BobailGamePage(),
+            transitionDuration: const Duration(milliseconds: 400),
+            pageBuilder: (_, animation, __) => const BobailGamePage(),
             transitionsBuilder: (_, animation, __, child) {
-              return FadeTransition(opacity: animation, child: child);
+              final curved = CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOut,
+              );
+              return FadeTransition(
+                opacity: curved,
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.98, end: 1.0).animate(curved),
+                  child: child,
+                ),
+              );
             },
           ),
         );
       },
-      child: const Text('Play'),
+      child: const Text('Play locally'),
+    );
+  }
+}
+
+class PlayVsAIButton extends StatelessWidget {
+  const PlayVsAIButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        // You can add a specific route or AI setup later
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('AI mode coming soon!')));
+      },
+      child: const Text('Play vs AI (Coming Soon)'),
+    );
+  }
+}
+
+class PlaceholderButton extends StatelessWidget {
+  const PlaceholderButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Multiplayer coming soon!')),
+        );
+      },
+      child: const Text('Multiplayer (Coming Soon)'),
     );
   }
 }

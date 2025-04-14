@@ -138,10 +138,7 @@ class BoardController extends ChangeNotifier {
       child: InkWell(
         onTap: () => handleTap(context, index),
         customBorder: const CircleBorder(),
-        child: Container(
-          decoration: BoxDecoration(color: const Color(0xFF8D6E63)),
-          child: Piece(piece: piece, renderInformation: renderInformation),
-        ),
+        child: Piece(piece: piece, renderInformation: renderInformation),
       ),
     );
   }

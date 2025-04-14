@@ -66,7 +66,6 @@ class BoardView extends StatelessWidget {
                           Expanded(
                             child: Container(
                               decoration: BoxDecoration(
-                                color: const Color(0xFF795548),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black54,

@@ -10,18 +10,20 @@ class MiniBoard extends StatelessWidget {
     return Hero(
       tag: 'bobail-board',
       child: Material(
+        borderRadius: BorderRadius.circular(16),
         child: Container(
-          width: 200,
-          height: 230,
-          decoration: BoxDecoration(
-            color: const Color(0xFF795548),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.all(4),
+          padding: EdgeInsets.all(6),
+          width: 205,
+          height: 210,
           child: GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
             itemCount: rowSize * rowSize,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: rowSize,
+              childAspectRatio: 1,
+              crossAxisSpacing: 3,
+              mainAxisSpacing: 3,
             ),
             itemBuilder: (context, index) {
               return _Piece(index: index);
@@ -41,7 +43,7 @@ class _Piece extends StatelessWidget {
   Widget build(BuildContext context) {
     const white = Colors.white;
     const black = Colors.black;
-    const bobail = Colors.blue;
+    const bobail = Colors.green;
     const colorMap = {
       0: white,
       1: white,

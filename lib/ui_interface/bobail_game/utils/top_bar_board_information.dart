@@ -8,14 +8,17 @@ class TopBarBoardInformation extends StatelessWidget {
     required this.boardSize,
   });
   final double boardSize;
-  final tobBarTextStyle = const TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 16,
-  );
   final BoardController controller;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final tobBarTextStyle = const TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 16,
+      color: Colors.white,
+    );
+
     return Container(
       width: boardSize,
       height: 30,
@@ -24,7 +27,7 @@ class TopBarBoardInformation extends StatelessWidget {
           topLeft: Radius.circular(12),
           topRight: Radius.circular(12),
         ),
-        color: Colors.amber,
+        color: theme.primaryColor,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
