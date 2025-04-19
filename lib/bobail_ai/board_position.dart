@@ -1,85 +1,68 @@
-import 'package:bobail_mobile/board_model/board_movement_rules/movement_manager.dart';
+import 'package:bobail_mobile/bobail_ai/board_hasher.dart';
+import 'package:bobail_mobile/bobail_ai/constants.dart';
 import 'package:bobail_mobile/bobail_ai/logger/log.dart';
 import 'package:bobail_mobile/bobail_ai/movement.dart';
 import 'package:bobail_mobile/bobail_ai/utils.dart/moves_calculator.dart';
-import 'package:flutter/foundation.dart';
 
 class BoardPosition {
-  final Log log = kDebugMode ? BobailAiLogger() : SilentLogger();
-
-  static const int rows = 5;
-  static const int whiteLimit = 5;
-  static const int blackLimit = 19;
+  static final BoardHasher boardHasher = BoardHasher();
+  static BobailAiLogger log = BobailAiLogger();
+  int bobail;
   final Set<int> whitePieces;
   final Set<int> blackPieces;
-  bool isWhitesTurn;
-  int bobail;
   final Set<int> occupiedPositions = <int>{};
-  final Movementmanager _mm = Movementmanager.instance;
+  int boardHashValue;
 
-  BoardPosition(
-    this.bobail,
-    this.whitePieces,
-    this.blackPieces,
-    this.isWhitesTurn,
-  ) {
+  BoardPosition(this.bobail, this.whitePieces, this.blackPieces)
+    : boardHashValue = boardHasher.computeHash(
+        bobailPosition: bobail,
+        whitePieces: whitePieces,
+        blackPieces: blackPieces,
+      ) {
     occupiedPositions.add(bobail);
     occupiedPositions.addAll(whitePieces);
     occupiedPositions.addAll(blackPieces);
   }
 
   bool isTerminalState() {
-    var winningPosition = {0, 1, 2, 3, 4, 20, 21, 22, 23, 24};
+    var winningPosition = {...whitePositions, ...blackPositions};
     return winningPosition.contains(bobail) ||
-        _getFreeAdjacentSquares(bobail).isEmpty;
+        MovesCalculator.getBobailFreeAdjacentSquares(
+          bobail,
+          occupiedPositions,
+        ).isEmpty;
   }
 
   double evaluate() {
+    double bobailScoreCalculator(int bobailPosition) =>
+        ((bobailPosition ~/ rowsInBoard) * -5) + 10;
     const double bobailWeight = 3;
     const double mobilityWeight = 1.0;
 
-    final double bobailScore = _getValueOfBobailPosition(bobail) * bobailWeight;
+    final double bobailScore = bobailScoreCalculator(bobail);
     final int whiteMobility = _countAdjacentAvailable(whitePieces);
     final int blackMobility = _countAdjacentAvailable(blackPieces);
     final double mobilityScore =
         (whiteMobility - blackMobility) * mobilityWeight;
 
-    return bobailScore + mobilityScore;
-  }
-
-  // value based on position: f(x) = x.5 -10
-  // White is positve, black is negative.
-  double _getValueOfBobailPosition(int position) {
-    if (position < whiteLimit) return double.negativeInfinity;
-    if (position > blackLimit) return double.infinity;
-
-    double moveability = _evalBobailMoveability();
-    if (moveability != 0) return moveability;
-
-    return (position ~/ rows) * 5 - 10;
-  }
-
-  double _evalBobailMoveability() {
-    if (_getFreeAdjacentSquares(bobail).isNotEmpty) return 0;
-    // If its whites turn and manages to block the bobail, it automatically wins.
-    if (isWhitesTurn) {
-      return double.infinity;
-    } else {
-      return double.negativeInfinity;
-    }
+    return bobailScore * bobailWeight + mobilityScore;
   }
 
   int _countAdjacentAvailable(Set<int> collection) {
     return collection.fold(
       0,
-      (value, position) => value + _getFreeAdjacentSquares(position).length,
+      (value, position) =>
+          value +
+          MovesCalculator.getBobailFreeAdjacentSquares(
+            position,
+            occupiedPositions,
+          ).length,
     );
   }
 
-  //TODO this should be inmutable to the class. So that it works every time.
-  Iterable<Movement> availableMoves() sync* {
+  Iterable<Movement> availableMoves(bool isWhitesTurn) sync* {
     var pieces = isWhitesTurn ? whitePieces.toList() : blackPieces.toList();
-    List<int> bobailMoves = _getBobailMovesSorted(!isWhitesTurn);
+    List<int> bobailMoves = _getBobailMovesSorted(isWhitesTurn);
 
     for (int newBobailPosition in bobailMoves) {
       for (int pieceCurrentPosition in pieces) {
@@ -106,13 +89,18 @@ class BoardPosition {
     }
   }
 
-  List<int> _getBobailMovesSorted(bool? ascendant) {
-    var order = ascendant ?? false;
-    int bobailSort(a, b) =>
-        _getValueOfBobailPosition(a).compareTo(_getValueOfBobailPosition(b));
+  List<int> _getBobailMovesSorted(bool isWhitesTurn) {
+    int bobailSort(a, b) => _getValueOfBobailPosition(
+      a,
+      isWhitesTurn,
+    ).compareTo(_getValueOfBobailPosition(b, isWhitesTurn));
 
-    var bobailMoves = _getFreeAdjacentSquares(bobail).toList();
-    if (order) {
+    var bobailMoves =
+        MovesCalculator.getBobailFreeAdjacentSquares(
+          bobail,
+          occupiedPositions,
+        ).toList();
+    if (isWhitesTurn) {
       bobailMoves.sort(bobailSort);
     } else {
       bobailMoves.sort((a, b) => bobailSort(b, a));
@@ -120,19 +108,36 @@ class BoardPosition {
     return bobailMoves;
   }
 
-  Iterable<int> _getFreeAdjacentSquares(int position) =>
-      _mm.getAdjacent(position).where((position) => !_isOccupied(position));
+  double _getValueOfBobailPosition(int position, bool isWhitesTurn) {
+    if (whiteWon(bobailPosition)) return -100000;
+    if (blackWon(bobailPosition)) return 100000;
 
-  bool _isOccupied(int position) {
-    return occupiedPositions.contains(position);
+    double moveability = _evalBobailMoveability(isWhitesTurn);
+    if (moveability != 0) return moveability;
+
+    return (position ~/ rowsInBoard) * 5 - 10;
   }
 
-  void advance(Movement movement) {
-    isWhitesTurn = !isWhitesTurn;
+  double _evalBobailMoveability(bool isWhitesTurn) {
+    var isAbleToMove =
+        MovesCalculator.getBobailFreeAdjacentSquares(
+          bobail,
+          occupiedPositions,
+        ).isNotEmpty;
+    if (isAbleToMove) return 0;
+    // If its whites turn and manages to block the bobail, it automatically wins.
+    if (isWhitesTurn) {
+      return -1000000;
+    } else {
+      return 1000000;
+    }
+  }
+
+  void advance(Movement movement, bool isWhitesTurn) {
+    _updateHashForAdvance(movement, isWhitesTurn);
 
     occupiedPositions.remove(movement.pieceFrom);
     occupiedPositions.remove(movement.bobailFrom);
-
     bobail = movement.bobailTo;
     occupiedPositions.add(movement.bobailTo);
     occupiedPositions.add(movement.pieceTo);
@@ -144,23 +149,57 @@ class BoardPosition {
     }
   }
 
-  void undo(Movement move) {
-    isWhitesTurn = !isWhitesTurn;
+  void undo(Movement movement, bool isWhitesTurn) {
+    _updateHashForUndo(movement, isWhitesTurn);
+    occupiedPositions.remove(movement.pieceTo);
+    occupiedPositions.remove(movement.bobailTo);
+    occupiedPositions.add(movement.pieceFrom);
+    occupiedPositions.add(movement.bobailFrom);
 
-    occupiedPositions.remove(move.pieceTo);
-    occupiedPositions.remove(move.bobailTo);
+    bobail = movement.bobailFrom;
 
-    occupiedPositions.add(move.pieceFrom);
-    occupiedPositions.add(move.bobailFrom);
-
-    bobail = move.bobailFrom;
-
-    if (whitePieces.remove(move.pieceTo)) {
-      whitePieces.add(move.pieceFrom);
-    } else if (blackPieces.remove(move.pieceTo)) {
-      blackPieces.add(move.pieceFrom);
+    if (whitePieces.remove(movement.pieceTo)) {
+      whitePieces.add(movement.pieceFrom);
+    } else if (blackPieces.remove(movement.pieceTo)) {
+      blackPieces.add(movement.pieceFrom);
     } else {
       throw Exception('The intended piece to move was not there');
     }
+  }
+
+  void _updateHashForAdvance(Movement movement, bool isWhitesTurn) {
+    final kind = isWhitesTurn ? PieceKind.white : PieceKind.black;
+
+    // undo moves
+    boardHashValue ^= boardHasher.pieceHash(
+      PieceKind.bobail,
+      movement.bobailFrom,
+    );
+    boardHashValue ^= boardHasher.pieceHash(kind, movement.pieceFrom);
+
+    // apply new moves
+    boardHashValue ^= boardHasher.pieceHash(
+      PieceKind.bobail,
+      movement.bobailTo,
+    );
+    boardHashValue ^= boardHasher.pieceHash(kind, movement.pieceTo);
+  }
+
+  void _updateHashForUndo(Movement movement, bool isWhitesTurn) {
+    final pieceKind = isWhitesTurn ? PieceKind.white : PieceKind.black;
+
+    // undo move
+    boardHashValue ^= boardHasher.pieceHash(
+      PieceKind.bobail,
+      movement.bobailTo,
+    );
+    boardHashValue ^= boardHasher.pieceHash(pieceKind, movement.pieceTo);
+
+    // Reverse hash update for the removed positions
+    boardHashValue ^= boardHasher.pieceHash(
+      PieceKind.bobail,
+      movement.bobailFrom,
+    );
+    boardHashValue ^= boardHasher.pieceHash(pieceKind, movement.pieceFrom);
   }
 }

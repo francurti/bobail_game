@@ -9,20 +9,34 @@ void main() {
         16,
         {0, 1, 2, 3, 4},
         {20, 15, 22, 23, 24},
-        true,
       );
-
       final bobailAi = BobailAi(oneTurnToWinPosition);
-      final suggestedMovement = bobailAi.getBestMove(1, true);
+      final suggestedMovement = bobailAi.getBestMove(1, false);
 
       expect(suggestedMovement.bobailTo, 21);
       expect(suggestedMovement.bobailFrom, 16);
     });
 
-    test('Bobail first move of the board', () {
-      final bobailAi = BobailAi.base();
+    test('Test playing the game', () {
+      final boardPosition = BoardPosition(
+        12,
+        {15, 1, 2, 3, 4},
+        {20, 21, 22, 23, 24},
+      );
+      final bobailAi = BobailAi(boardPosition);
+      // Log the initial board state
+      print("Initial Board Position:");
+      print("Bobail Position: ${boardPosition.bobail}");
+      print("White Pieces: ${boardPosition.whitePieces}");
+      print("Black Pieces: ${boardPosition.blackPieces}");
 
-      final suggestedMovement = bobailAi.getBestMove(1, true);
+      //  0  1  2  3  4
+      //  5  6  7  8  9
+      // 10 11 12 13 14
+      // 15 16 17 18 19
+      // 20 21 22 23 24
+
+      bobailAi.getBestMove(4, false);
     });
   });
 }
