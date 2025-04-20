@@ -1,4 +1,4 @@
-import 'package:bobail_mobile/ui_interface/bobail_game/board_controller.dart';
+import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/board_controller.dart';
 import 'package:flutter/material.dart';
 
 class TopBarBoardInformation extends StatelessWidget {

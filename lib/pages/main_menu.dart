@@ -1,4 +1,5 @@
-import 'package:bobail_mobile/pages/bobail_game_page.dart';
+import 'package:bobail_mobile/pages/ai_bobail_game_page.dart';
+import 'package:bobail_mobile/pages/local_bobail_game_page.dart';
 import 'package:bobail_mobile/ui_interface/util/mini_board.dart';
 import 'package:flutter/material.dart';
 
@@ -48,7 +49,7 @@ class PlayButton extends StatelessWidget {
         Navigator.of(context).push(
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 600),
-            pageBuilder: (_, animation, __) => const BobailGamePage(),
+            pageBuilder: (_, animation, __) => const LocalBobailGamePage(),
             transitionsBuilder: (_, animation, __, child) {
               final curved = CurvedAnimation(
                 parent: animation,
@@ -76,11 +77,26 @@ class PlayVsAIButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {
-        // You can add a specific route or AI setup later
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('AI mode coming soon!')));
+      onPressed: () async {
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 600),
+            pageBuilder: (_, animation, __) => const AiBobailGamePage(),
+            transitionsBuilder: (_, animation, __, child) {
+              final curved = CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOut,
+              );
+              return FadeTransition(
+                opacity: curved,
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.98, end: 1.0).animate(curved),
+                  child: child,
+                ),
+              );
+            },
+          ),
+        );
       },
       child: const Text('Play vs AI (Coming Soon)'),
     );

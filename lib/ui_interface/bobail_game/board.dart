@@ -1,21 +1,20 @@
-import 'package:bobail_mobile/ui_interface/bobail_game/board_controller.dart';
+import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/board_controller.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/game_over_overlay.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/utils/top_bar_board_information.dart';
-import 'package:bobail_mobile/ui_interface/settings/board_view_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 const int rowSize = 5;
 
 class Board extends StatelessWidget {
-  final BoardViewSettings viewSettings;
+  final BoardController controller;
 
-  const Board({super.key, required this.viewSettings});
+  const Board({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => BoardController(viewSettings),
+    return ChangeNotifierProvider<BoardController>.value(
+      value: controller,
       child: const BoardView(),
     );
   }

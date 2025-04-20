@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-class BoardViewSettings extends ChangeNotifier {
+class BoardSettings extends ChangeNotifier {
   bool _reversedBoard;
 
-  BoardViewSettings({bool reversedBoard = false})
-    : _reversedBoard = reversedBoard;
+  BoardSettings({bool reversedBoard = false}) : _reversedBoard = reversedBoard;
 
-  factory BoardViewSettings.local({bool reversedBoard = false}) {
-    return BoardViewSettings(reversedBoard: reversedBoard);
+  factory BoardSettings.local({bool reversedBoard = false}) {
+    return BoardSettings(reversedBoard: reversedBoard);
   }
 
   bool get isReversedView => _reversedBoard;
@@ -19,8 +18,8 @@ class BoardViewSettings extends ChangeNotifier {
     }
   }
 
-  void flip() {
-    isReversedView = !isReversedView; // uses the safe setter
+  void flipBoardView() {
+    isReversedView = !isReversedView;
     notifyListeners();
   }
 }

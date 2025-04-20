@@ -1,23 +1,24 @@
 import 'package:bobail_mobile/ui_interface/bobail_game/board.dart';
+import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/ai_board_controller.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/bobail_game_tutorial.dart';
 import 'package:bobail_mobile/ui_interface/settings/board_view_settings.dart';
 import 'package:flutter/material.dart';
 
-class BobailGamePage extends StatefulWidget {
-  const BobailGamePage({super.key});
+class AiBobailGamePage extends StatefulWidget {
+  const AiBobailGamePage({super.key});
 
   @override
-  State<BobailGamePage> createState() => _BobailGamePageState();
+  State<AiBobailGamePage> createState() => _AiBobailGamePageState();
 }
 
-class _BobailGamePageState extends State<BobailGamePage> {
-  late final BoardViewSettings viewSettings;
+class _AiBobailGamePageState extends State<AiBobailGamePage> {
+  late final BoardSettings viewSettings;
   bool showTutorial = false;
 
   @override
   void initState() {
     super.initState();
-    viewSettings = BoardViewSettings.local(reversedBoard: false);
+    viewSettings = BoardSettings.local(reversedBoard: false);
   }
 
   @override
@@ -43,7 +44,9 @@ class _BobailGamePageState extends State<BobailGamePage> {
       ),
       body: Stack(
         children: [
-          Center(child: Board(viewSettings: viewSettings)),
+          Center(
+            child: Board(controller: AiBoardController(viewSettings, true)),
+          ),
           if (showTutorial)
             BobailTutorial(
               onClose: () {
@@ -54,22 +57,6 @@ class _BobailGamePageState extends State<BobailGamePage> {
             ),
         ],
       ),
-      floatingActionButton:
-          showTutorial
-              ? null
-              : FloatingActionButton.extended(
-                onPressed: () {
-                  setState(() {
-                    viewSettings.flip();
-                  });
-                },
-                icon: const Icon(Icons.sync_alt),
-                label: Text(
-                  !viewSettings.isReversedView
-                      ? 'Fixed Board View'
-                      : 'Follow Player Turn',
-                ),
-              ),
     );
   }
 }
