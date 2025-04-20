@@ -69,8 +69,13 @@ class BoardPosition {
   }
 
   Iterable<Movement> availableMoves() sync* {
-    var pieces = isWhitesTurn ? whitePieces.toList() : blackPieces.toList();
+    List<int> pieces =
+        isWhitesTurn
+            ? whitePieces.toList(growable: false)
+            : blackPieces.toList(growable: false);
     List<int> bobailMoves = _getBobailMovesSorted();
+    // TODO: this sort would work on the early game but fall off when pieces are scattered.
+    pieces.sort((a, b) => isWhitesTurn ? a.compareTo(b) : b.compareTo(a));
 
     for (int newBobailPosition in bobailMoves) {
       for (int pieceCurrentPosition in pieces) {
@@ -98,46 +103,37 @@ class BoardPosition {
   }
 
   List<int> _getBobailMovesSorted() {
-    int bobailSort(a, b) =>
-        _getValueOfBobailPosition(a).compareTo(_getValueOfBobailPosition(b));
-
-    var bobailMoves =
-        MovesCalculator.getBobailFreeAdjacentSquares(
-          bobail,
-          occupiedPositions,
-        ).toList();
-    if (isWhitesTurn) {
-      bobailMoves.sort(bobailSort);
-    } else {
-      bobailMoves.sort((a, b) => bobailSort(b, a));
+    int compare(a, b) {
+      final aValue = _getValueOfBobailPosition(a);
+      final bValue = _getValueOfBobailPosition(b);
+      return isWhitesTurn ? aValue.compareTo(bValue) : bValue.compareTo(aValue);
     }
+
+    final bobailMoves =
+        MovesCalculator.getBobailFreeAdjacentSquares(
+            bobail,
+            occupiedPositions,
+          ).toList()
+          ..sort(compare);
+
     return bobailMoves;
   }
 
   double _getValueOfBobailPosition(int position) {
-    if (whiteWon(bobailPosition)) return -100000;
-    if (blackWon(bobailPosition)) return 100000;
-
-    double moveability = _evalBobailMoveability();
-    if (moveability != 0) return moveability;
+    if (_whiteHasWon) return -100000;
+    if (_blackHasWon) return 100000;
+    if (_bobailIsTrapped) return isWhitesTurn ? -100000 : 100000;
 
     return (position ~/ rowsInBoard) * 5 - 10;
   }
 
-  double _evalBobailMoveability() {
-    var isAbleToMove =
-        MovesCalculator.getBobailFreeAdjacentSquares(
-          bobail,
-          occupiedPositions,
-        ).isNotEmpty;
-    if (isAbleToMove) return 0;
-    // If its whites turn and manages to block the bobail, it automatically wins.
-    if (isWhitesTurn) {
-      return -1000000;
-    } else {
-      return 1000000;
-    }
-  }
+  late final bool _whiteHasWon = whiteWon(bobailPosition);
+  late final bool _blackHasWon = blackWon(bobailPosition);
+  late final bool _bobailIsTrapped =
+      MovesCalculator.getBobailFreeAdjacentSquares(
+        bobail,
+        occupiedPositions,
+      ).isEmpty;
 
   void advance(Movement movement) {
     _updateHashForAdvance(movement);

@@ -21,7 +21,7 @@ void main() {
     test('Test playing the game', () {
       final boardPosition = BoardPosition(
         12,
-        {15, 1, 2, 3, 4},
+        {0, 1, 2, 3, 4},
         {20, 21, 22, 23, 24},
         false,
       );
@@ -33,7 +33,7 @@ void main() {
       // 15 16 17 18 19
       // 20 21 22 23 24
 
-      bobailAi.getBestMove(4);
+      bobailAi.getBestMove(9);
     });
   });
 }

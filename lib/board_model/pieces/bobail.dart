@@ -5,7 +5,8 @@ import 'package:bobail_mobile/board_model/pieces/piece.dart';
 import 'package:bobail_mobile/board_model/pieces/piece_kind.dart';
 
 class Bobail extends Piece {
-  static const Set<int> winningPositions = {0, 1, 2, 3, 4, 20, 21, 22, 23, 24};
+  static const Set<int> whiteWinningPosition = {0, 1, 2, 3, 4};
+  static const Set<int> blackWinningPosition = {20, 21, 22, 23, 24};
   static final mc = Movementmanager.instance;
 
   Bobail(Board board)
@@ -16,7 +17,15 @@ class Bobail extends Piece {
   }
 
   bool isInDefinitePosition() {
-    return winningPositions.contains(super.positionIndex);
+    return isInBlackWinningPosition() || isInWhiteWinningPosition();
+  }
+
+  bool isInWhiteWinningPosition() {
+    return whiteWinningPosition.contains(super.positionIndex);
+  }
+
+  bool isInBlackWinningPosition() {
+    return blackWinningPosition.contains(super.positionIndex);
   }
 
   @override

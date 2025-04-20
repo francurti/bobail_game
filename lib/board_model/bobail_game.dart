@@ -108,9 +108,19 @@ class BobailGame {
   }
 
   String getWinner() {
-    if (isGameOver()) {
+    if (!isGameOver()) {
+      throw StateError('There\'s no winner yet');
+    }
+    if (!bobail.isAbleToMove()) {
       return isWhiteTurn ? 'Black' : 'White';
     }
+    if (bobail.isInWhiteWinningPosition()) {
+      return 'White';
+    }
+    if (bobail.isInBlackWinningPosition()) {
+      return 'Black';
+    }
+
     throw StateError('There\'s no winner yet');
   }
 
