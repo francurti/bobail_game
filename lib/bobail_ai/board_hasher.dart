@@ -4,6 +4,7 @@ enum PieceKind { white, black, bobail }
 
 class BoardHasher {
   static final Random _rng = Random();
+  static final int whiteToMoveHash = _random64(); // one extra hash value
 
   final Map<PieceKind, List<int>> _zobristTable = {
     for (var kind in PieceKind.values)
@@ -20,6 +21,7 @@ class BoardHasher {
     required int bobailPosition,
     required Set<int> whitePieces,
     required Set<int> blackPieces,
+    required bool isWhitesTurn,
   }) {
     int hash = 0;
 
@@ -34,6 +36,10 @@ class BoardHasher {
     // Black pieces
     for (final pos in blackPieces) {
       hash ^= _zobristTable[PieceKind.black]![pos];
+    }
+
+    if (isWhitesTurn) {
+      hash ^= whiteToMoveHash;
     }
 
     return hash;

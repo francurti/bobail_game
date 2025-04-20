@@ -1,15 +1,19 @@
 import 'dart:math';
 
 import 'package:bobail_mobile/bobail_ai/board_position.dart';
-import 'package:bobail_mobile/bobail_ai/constants.dart';
 import 'package:bobail_mobile/bobail_ai/logger/log.dart';
-import 'package:bobail_mobile/bobail_ai/movement.dart';
+import 'package:bobail_mobile/bobail_ai/utils.dart/alpha_beta.dart';
+import 'package:bobail_mobile/bobail_ai/utils.dart/constants.dart';
+import 'package:bobail_mobile/bobail_ai/utils.dart/evaluation_result.dart';
+import 'package:bobail_mobile/bobail_ai/utils.dart/movement.dart';
 import 'package:flutter/foundation.dart';
 
 class BobailAi {
   static final Log log = kDebugMode ? BobailAiLogger() : SilentLogger();
   final BoardPosition trackingBoard;
   int callsToMinimax = 0;
+  int visitedSkipped = 0;
+  final Set<int> visitedStates = {};
 
   BobailAi(this.trackingBoard);
 
@@ -18,63 +22,61 @@ class BobailAi {
         bobailPosition,
         whitePositions.toSet(),
         blackPositions.toSet(),
+        true,
       );
 
-  Movement getBestMove(int depth, bool isWhitesTurn) {
+  Movement getBestMove(int depth) {
     log.i(
-      'Init getBestMove with depth = $depth and its the whites turn: $isWhitesTurn ',
+      'Init getBestMove with depth = $depth and its the whites turn: ${trackingBoard.isWhitesTurn} ',
     );
     if (trackingBoard.isTerminalState()) {
       throw StateError('The board has already reached a final state');
     }
-    callsToMinimax = 0;
+    callsToMinimax = visitedSkipped = 0;
+    visitedStates.clear();
 
     final result = alphaBetaMinimax(
       depth,
       AlphaBeta(double.negativeInfinity, double.infinity),
-      isWhitesTurn,
     );
-
     assert(result.move != null);
     log.i(
-      'Bobail ai choose this move ${result.move} | ${result.score} with $callsToMinimax calls to minimax',
+      'Bobail ai choose this move ${result.move} | ${result.score} with $callsToMinimax calls to minimax and $visitedSkipped skipped states',
     );
     return result.move!;
   }
 
-  //TODO add hashing to avoid evaluating same position twice.
-  EvaluationResult alphaBetaMinimax(
-    int depth,
-    AlphaBeta alphaBeta,
-    bool isWhitesTurn,
-  ) {
+  EvaluationResult alphaBetaMinimax(int depth, AlphaBeta alphaBeta) {
     callsToMinimax++;
 
-    var moves = trackingBoard.availableMoves(isWhitesTurn).toList();
-    var initialValue = isWhitesTurn ? double.negativeInfinity : double.infinity;
+    var key = trackingBoard.boardHashValue;
+    var moves = trackingBoard.availableMoves();
+    var initialValue =
+        trackingBoard.isWhitesTurn ? double.negativeInfinity : double.infinity;
+
+    if (visitedStates.contains(key) || depth == 0) {
+      visitedSkipped++;
+      return EvaluationResult(trackingBoard.evaluate(), null);
+    }
 
     if (trackingBoard.isTerminalState() || moves.isEmpty) {
       return EvaluationResult(initialValue, null);
-    }
-
-    if (depth == 0) {
-      return EvaluationResult(trackingBoard.evaluate(), null);
     }
 
     double bestScore = initialValue;
     Movement? bestMove;
 
     for (Movement move in moves) {
-      var eval =
-          _simulateAndEvaluateMove(move, depth, alphaBeta, isWhitesTurn).score;
+      var whitesTurn = trackingBoard.isWhitesTurn;
+      var eval = _simulateAndEvaluateMove(move, depth, alphaBeta).score;
 
-      if ((isWhitesTurn && eval > bestScore) ||
-          (!isWhitesTurn && eval < bestScore)) {
+      if ((whitesTurn && eval > bestScore) ||
+          (!whitesTurn && eval < bestScore)) {
         bestMove = move;
         bestScore = eval;
       }
 
-      if (isWhitesTurn) {
+      if (whitesTurn) {
         alphaBeta.alpha = max(alphaBeta.alpha, eval);
         if (alphaBeta.alpha >= alphaBeta.beta) {
           break;
@@ -93,30 +95,12 @@ class BobailAi {
     Movement move,
     int depth,
     AlphaBeta alphaBeta,
-    bool isWhitesTurn,
   ) {
-    trackingBoard.advance(move, isWhitesTurn);
-    var eval = alphaBetaMinimax(
-      depth - 1,
-      AlphaBeta.copy(alphaBeta),
-      !isWhitesTurn,
-    );
-    trackingBoard.undo(move, isWhitesTurn);
+    trackingBoard.advance(move);
+    var key = trackingBoard.boardHashValue;
+    var eval = alphaBetaMinimax(depth - 1, AlphaBeta.copy(alphaBeta));
+    trackingBoard.undo(move);
+    visitedStates.add(key);
     return eval;
   }
-}
-
-class EvaluationResult {
-  final double score;
-  final Movement? move;
-  EvaluationResult(this.score, this.move);
-}
-
-class AlphaBeta {
-  double alpha;
-  double beta;
-  AlphaBeta(this.alpha, this.beta);
-  AlphaBeta.copy(AlphaBeta alphaBeta)
-    : alpha = alphaBeta.alpha,
-      beta = alphaBeta.beta;
 }
