@@ -4,13 +4,9 @@ import 'package:flutter/material.dart';
 
 class Piece extends StatefulWidget {
   final PieceIndicator? piece;
-  final PositionInformation renderInformation;
+  final PositionInformation renderInfo;
 
-  const Piece({
-    super.key,
-    required this.piece,
-    required this.renderInformation,
-  });
+  const Piece({super.key, required this.piece, required this.renderInfo});
 
   @override
   State<Piece> createState() => _PieceState();
@@ -21,8 +17,7 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
   late Animation<double> _scaleAnimation;
 
   bool get shouldAnimate =>
-      ((widget.piece?.isMoveable ?? false) &&
-          !widget.renderInformation.isSelected);
+      ((widget.piece?.isMoveable ?? false) && !widget.renderInfo.isSelected);
 
   @override
   void initState() {
@@ -67,8 +62,8 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
     final Color baseColor = _correctColor(piece) ?? theme.primaryColor;
     final borderColor = _borderColor();
 
-    final isPreview = widget.renderInformation.isBobailPreview;
-    final isHighlight = widget.renderInformation.isHighligthed;
+    final isPreview = widget.renderInfo.isBobailPreview;
+    final isHighlight = widget.renderInfo.isHighligthed;
     return ScaleTransition(
       scale: _scaleAnimation,
       child: Container(
@@ -99,7 +94,7 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
     final bool isEmpty =
         piece == null || (piece.isBobail && piece.hasBobailMoved);
 
-    if (widget.renderInformation.isBobailPreview) return Colors.greenAccent;
+    if (widget.renderInfo.isBobailPreview) return Colors.greenAccent;
     if (isEmpty) return null;
     if (piece.isWhite) return Colors.white;
     if (piece.isBlack) return Colors.black;
@@ -110,7 +105,7 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
   }
 
   Color _borderColor() {
-    if (widget.renderInformation.isHighligthed) return Colors.pink;
+    if (widget.renderInfo.isHighligthed) return Colors.pink;
     return Colors.black;
   }
 }

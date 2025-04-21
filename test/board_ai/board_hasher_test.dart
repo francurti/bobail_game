@@ -1,5 +1,5 @@
+import 'package:bobail_mobile/bobail_ai/ai_utils/movement.dart'; // assuming you have this
 import 'package:bobail_mobile/bobail_ai/board_position.dart';
-import 'package:bobail_mobile/bobail_ai/utils.dart/movement.dart'; // assuming you have this
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -1,8 +1,8 @@
+import 'package:bobail_mobile/bobail_ai/ai_utils/constants.dart';
+import 'package:bobail_mobile/bobail_ai/ai_utils/movement.dart';
+import 'package:bobail_mobile/bobail_ai/ai_utils/moves_calculator.dart';
 import 'package:bobail_mobile/bobail_ai/board_hasher.dart';
 import 'package:bobail_mobile/bobail_ai/logger/log.dart';
-import 'package:bobail_mobile/bobail_ai/utils.dart/constants.dart';
-import 'package:bobail_mobile/bobail_ai/utils.dart/movement.dart';
-import 'package:bobail_mobile/bobail_ai/utils.dart/moves_calculator.dart';
 
 class BoardPosition {
   static final BoardHasher boardHasher = BoardHasher();

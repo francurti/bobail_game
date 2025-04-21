@@ -1,11 +1,11 @@
 import 'dart:math';
 
+import 'package:bobail_mobile/bobail_ai/ai_utils/alpha_beta.dart';
+import 'package:bobail_mobile/bobail_ai/ai_utils/constants.dart';
+import 'package:bobail_mobile/bobail_ai/ai_utils/evaluation_result.dart';
+import 'package:bobail_mobile/bobail_ai/ai_utils/movement.dart';
 import 'package:bobail_mobile/bobail_ai/board_position.dart';
 import 'package:bobail_mobile/bobail_ai/logger/log.dart';
-import 'package:bobail_mobile/bobail_ai/utils.dart/alpha_beta.dart';
-import 'package:bobail_mobile/bobail_ai/utils.dart/constants.dart';
-import 'package:bobail_mobile/bobail_ai/utils.dart/evaluation_result.dart';
-import 'package:bobail_mobile/bobail_ai/utils.dart/movement.dart';
 import 'package:flutter/foundation.dart';
 
 class BobailAi {

@@ -1,4 +1,4 @@
-import 'package:bobail_mobile/bobail_ai/utils.dart/movement.dart';
+import 'package:bobail_mobile/bobail_ai/ai_utils/movement.dart';
 
 class EvaluationResult {
   final double score;

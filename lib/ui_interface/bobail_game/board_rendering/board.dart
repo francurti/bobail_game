@@ -1,5 +1,7 @@
 import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/board_controller.dart';
+import 'package:bobail_mobile/ui_interface/bobail_game/board_rendering/board_tile.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/game_over_overlay.dart';
+import 'package:bobail_mobile/ui_interface/bobail_game/utils/position_information.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/utils/top_bar_board_information.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -87,9 +89,34 @@ class BoardView extends StatelessWidget {
                                         crossAxisSpacing: 4,
                                         mainAxisSpacing: 4,
                                       ),
-                                  itemBuilder:
-                                      (context, index) => controller
-                                          .itemBuilder(context, index),
+                                  itemBuilder: (context, index) {
+                                    final renderIndex = controller
+                                        .getCorrectIndex(index);
+                                    final piece =
+                                        controller
+                                            .boardIndicators
+                                            .piecesIndicator[renderIndex];
+
+                                    final info = PositionInformation(
+                                      controller.highlightedPiecesIndex
+                                          .contains(renderIndex),
+                                      controller.game.bobailPreview ==
+                                          renderIndex,
+                                      controller.currentSelectedPiece ==
+                                          renderIndex,
+                                    );
+
+                                    return BoardTile(
+                                      index: index,
+                                      piece: piece,
+                                      info: info,
+                                      onTap:
+                                          () => controller.handleTap(
+                                            context,
+                                            index,
+                                          ),
+                                    );
+                                  },
                                 ),
                               ),
                             ),
