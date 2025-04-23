@@ -3,7 +3,7 @@ import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/board_co
 import 'package:flutter/material.dart';
 
 mixin SelectableBoardLogic on BoardController {
-  void handlePieceTap(
+  bool handlePieceTap(
     BuildContext context,
     int position,
     PieceIndicator? tappedPiece,
@@ -14,12 +14,15 @@ mixin SelectableBoardLogic on BoardController {
 
     if (tappedPiece?.isMoveable ?? false) {
       _selectPiece(tappedPiece!, position);
+      return false;
     } else if (isEmpty && currentSelectedPiece != null) {
-      _tryMove(context, currentSelectedPiece!, position);
+      return _tryMove(context, currentSelectedPiece!, position);
     }
+    return false;
   }
 
-  void _tryMove(BuildContext context, int from, int to) {
+  bool _tryMove(BuildContext context, int from, int to) {
+    bool moveSuceeded = false;
     final piece = boardIndicators.piecesIndicator[from];
 
     if (piece?.isBobail ?? false) {
@@ -33,11 +36,14 @@ mixin SelectableBoardLogic on BoardController {
             duration: const Duration(seconds: 2),
           ),
         );
+      } else {
+        moveSuceeded = true;
       }
       game.bobailPreview = null;
     }
 
-    _refreshBoard();
+    refreshBoard();
+    return moveSuceeded;
   }
 
   void _selectPiece(PieceIndicator piece, int position) {
@@ -51,7 +57,7 @@ mixin SelectableBoardLogic on BoardController {
 
   void _handleStandardSelection(int position) {
     if (currentSelectedPiece == position) {
-      _refreshBoard();
+      refreshBoard();
     } else {
       highlightedPiecesIndex =
           boardIndicators.piecesIndicator[position]?.movablePreview ?? {};
@@ -63,7 +69,7 @@ mixin SelectableBoardLogic on BoardController {
   void _handleBobailSelection(int position) {
     if (currentSelectedPiece == position) {
       game.bobailPreview = null;
-      _refreshBoard();
+      refreshBoard();
     } else {
       currentSelectedPiece = position;
       highlightedPiecesIndex =
@@ -72,7 +78,7 @@ mixin SelectableBoardLogic on BoardController {
     }
   }
 
-  void _refreshBoard() {
+  void refreshBoard() {
     currentSelectedPiece = null;
     highlightedPiecesIndex.clear();
     boardIndicators = game.getBoardIndicators();

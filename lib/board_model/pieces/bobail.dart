@@ -29,7 +29,7 @@ class Bobail extends Piece {
   }
 
   @override
-  void move(int newPosition) {
+  int? move(int newPosition) {
     bool isMoveAvailable = super.getAdjacentAvailable().any(
       (position) => newPosition == position,
     );
@@ -39,7 +39,9 @@ class Bobail extends Piece {
       Position newCurrentPosition = mc.getPosition(newPosition);
       super.board.notifyPieceMovement(this, super.positionIndex, newPosition);
       super.position = newCurrentPosition;
+      return newCurrentPosition.linearPosition;
     }
+    return null;
   }
 
   @override

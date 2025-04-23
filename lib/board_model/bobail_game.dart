@@ -6,11 +6,24 @@ import 'package:bobail_mobile/board_model/pieces/piece_kind.dart';
 import 'package:bobail_mobile/board_model/visualization/board_state.dart';
 import 'package:bobail_mobile/board_model/visualization/move_error_response.dart';
 
+class _LastMoved {
+  _LastMoved(this.bobail, this.pieceFrom, this.pieceTo);
+
+  int? bobail;
+  int? pieceFrom;
+  int? pieceTo;
+}
+
 class BobailGame {
   static final int piecesPerPlayer = 5;
   static final int whiteInitialPiecePos = 0;
   static final int blackInitialPiecePos = 20;
   static final int middle = 12;
+  static final _LastMoved _lastMoved = _LastMoved(null, null, null);
+
+  get lastBobailMove => _lastMoved.bobail;
+  get lastPieceMoveFrom => _lastMoved.pieceFrom;
+  get lastPieceMoveTo => _lastMoved.pieceTo;
 
   final Board board = Board();
   int turnCounter = 0;
@@ -82,7 +95,9 @@ class BobailGame {
       return moveCheck;
     }
     var ball = board.getPieceByPosition(oldBallPosition)!;
-    ball.move(adjacentIndex);
+    var finalPiece = ball.move(adjacentIndex);
+    _lastMoved.pieceTo = finalPiece;
+    _lastMoved.pieceFrom = oldBallPosition;
     _advanceToNextTurn();
 
     return moveCheck;
@@ -94,6 +109,7 @@ class BobailGame {
     }
     if (newBobailPosition != null) {
       bobail.move(newBobailPosition);
+      _lastMoved.bobail = newBobailPosition;
     }
     return MoveSuccess();
   }

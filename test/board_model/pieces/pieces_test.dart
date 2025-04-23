@@ -12,8 +12,9 @@ class _TestPiece extends Ball {
   void bind() {}
 
   @override
-  void move(int newPosition) {
+  int? move(int newPosition) {
     position = Position.fromLinear(newPosition);
+    return newPosition;
   }
 }
 

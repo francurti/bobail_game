@@ -54,7 +54,7 @@ class BoardView extends StatelessWidget {
                 child: Stack(
                   children: [
                     AbsorbPointer(
-                      absorbing: controller.isGameOver,
+                      absorbing: controller.isGameOver || controller.blockBoard,
                       child: Column(
                         children: [
                           Container(
@@ -97,6 +97,9 @@ class BoardView extends StatelessWidget {
                                             .boardIndicators
                                             .piecesIndicator[renderIndex];
 
+                                    final lastMoved =
+                                        controller.lastPieceMoveFrom ?? -1;
+
                                     final info = PositionInformation(
                                       controller.highlightedPiecesIndex
                                           .contains(renderIndex),
@@ -104,6 +107,7 @@ class BoardView extends StatelessWidget {
                                           renderIndex,
                                       controller.currentSelectedPiece ==
                                           renderIndex,
+                                      isLastMoved: (lastMoved) == renderIndex,
                                     );
 
                                     return BoardTile(
@@ -142,6 +146,14 @@ class BoardView extends StatelessWidget {
                       GameOverOverlay(
                         onRestart: controller.restartGame,
                         winner: controller.winner,
+                      ),
+
+                    if (controller.blockBoard)
+                      Positioned.fill(
+                        child: Container(
+                          color: Colors.black45,
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
                   ],
                 ),

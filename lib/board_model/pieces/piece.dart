@@ -16,7 +16,7 @@ abstract class Piece {
   }
 
   void bind();
-  void move(int newPosition);
+  int? move(int newPosition);
 
   void undoMove() {
     if (board.allowsToUndoMoveOf(this)) {

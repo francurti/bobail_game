@@ -48,7 +48,7 @@ class Ball extends Piece {
   }
 
   @override
-  void move(int newPosition) {
+  int? move(int newPosition) {
     List<int> positions = mc.getLine(super.positionIndex, newPosition);
 
     if (positions.isEmpty) {
@@ -58,7 +58,9 @@ class Ball extends Piece {
     if (_isFirstAvailable(positions)) {
       int lastPosition = _availablePositions(positions).last;
       _setNewPositionTo(lastPosition);
+      return lastPosition;
     }
+    return null;
   }
 
   List<int> _getReachableLine(Set<int> adjacent, int newPosition) {

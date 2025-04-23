@@ -18,9 +18,11 @@ abstract class BoardController extends ChangeNotifier {
   }
 
   GameInterface get game => _game;
+  int? get lastPieceMoveFrom => _game.bobailGame.lastPieceMoveFrom;
   String get playerTurnName => _game.bobailPlayerTurn;
   bool get isGameOver => _game.isGameOver();
   String get winner => _game.winner();
+  bool get blockBoard;
 
   void restartGame() {
     _game.resetGame();

@@ -25,4 +25,7 @@ class LocalBoardController extends BoardController with SelectableBoardLogic {
     if (!boardSettings.isReversedView) return index;
     return boardIndicators.turn.isEven ? (25 - 1 - index) : index;
   }
+
+  @override
+  bool get blockBoard => false;
 }
