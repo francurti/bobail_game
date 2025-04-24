@@ -103,4 +103,9 @@ class BobailAi {
     visitedStates.add(key);
     return eval;
   }
+
+  void dispose() {
+    trackingBoard.dispose();
+    visitedStates.clear();
+  }
 }

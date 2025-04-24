@@ -207,4 +207,10 @@ class BoardPosition {
     );
     boardHashValue ^= boardHasher.pieceHash(pieceKind, movement.pieceFrom);
   }
+
+  void dispose() {
+    blackPieces.clear();
+    whitePieces.clear();
+    occupiedPositions.clear();
+  }
 }
