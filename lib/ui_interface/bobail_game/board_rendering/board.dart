@@ -152,7 +152,13 @@ class BoardView extends StatelessWidget {
                       Positioned.fill(
                         child: Container(
                           color: Colors.black45,
-                          child: CircularProgressIndicator(),
+                          child: Center(
+                            child: SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
                         ),
                       ),
                   ],

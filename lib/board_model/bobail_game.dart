@@ -19,7 +19,7 @@ class BobailGame {
   static final int whiteInitialPiecePos = 0;
   static final int blackInitialPiecePos = 20;
   static final int middle = 12;
-  static final _LastMoved _lastMoved = _LastMoved(null, null, null);
+  final _LastMoved _lastMoved = _LastMoved(null, null, null);
 
   get lastBobailMove => _lastMoved.bobail;
   get lastPieceMoveFrom => _lastMoved.pieceFrom;

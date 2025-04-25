@@ -4,7 +4,7 @@ import 'package:bobail_mobile/board_presentation/board_indicators.dart';
 import 'package:bobail_mobile/bobail_ai/ai_utils/movement.dart';
 
 class GameInterface {
-  List<Movement> movements = [];
+  final List<Movement> movements = [];
   BobailGame bobailGame;
   int? bobailDestionationPosition;
 
@@ -65,6 +65,7 @@ class GameInterface {
   }
 
   void resetGame() {
+    movements.clear();
     bobailGame = BobailGame();
     bobailDestionationPosition = null;
   }

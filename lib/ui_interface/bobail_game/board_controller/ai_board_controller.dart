@@ -1,15 +1,18 @@
 import 'package:bobail_mobile/board_presentation/piece_indicators.dart';
-import 'package:bobail_mobile/bobail_ai/bobail_ai.dart';
+import 'package:bobail_mobile/bobail_ai/isolate_implementation/isolate_ai_manager.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/board_controller.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/selectable_board_logic.dart';
 import 'package:flutter/material.dart';
 
 class AiBoardController extends BoardController with SelectableBoardLogic {
   AiBoardController(super.boardSettings, this.isWhitePlayer)
-    : isAiTurn = !isWhitePlayer;
-
+    : isAiTurn = !isWhitePlayer {
+    isolateAiManager.start();
+  }
+  static const int depth = 6;
   final bool isWhitePlayer;
-  BobailAi bobailAi = BobailAi.base();
+  //BobailAi bobailAi = BobailAi.base();
+  final IsolateAiManager isolateAiManager = IsolateAiManager();
   bool isAiTurn;
 
   @override
@@ -24,15 +27,7 @@ class AiBoardController extends BoardController with SelectableBoardLogic {
       if (madeMove) {
         isAiTurn = true;
         notifyListeners();
-        await Future.delayed(
-          Duration(milliseconds: 100),
-        ); // give time for spinner
         await _makeAiMove();
-        await Future.delayed(
-          Duration(milliseconds: 100),
-        ); // give time for spinner
-        isAiTurn = false;
-        refreshBoard();
       }
     }
   }
@@ -57,21 +52,22 @@ class AiBoardController extends BoardController with SelectableBoardLogic {
   Future<void> _makeAiMove() async {
     // Inform Ai of player move
     var lastMove = game.movements.last;
-    bobailAi.trackingBoard.advance(lastMove);
-    // Find a response for the board;
-    var result = bobailAi.getBestMove(6);
 
+    isolateAiManager.advanceBoard(lastMove);
+    // Find a response for the board;
+    var result = await isolateAiManager.getBestMove(depth);
     //Make complete move based on the result
     game.makeCompleteMove(result.pieceFrom, result.pieceTo, result.bobailTo);
 
     // if the ai messes it up I dont advance the board
-    bobailAi.trackingBoard.advance(result);
+    isolateAiManager.advanceBoard(result);
+    isAiTurn = false;
+    refreshBoard();
   }
 
   @override
   void restartGame() {
-    bobailAi = BobailAi.base();
-    super.restartGame();
+    isolateAiManager.restart().then((_) => super.restartGame());
   }
 
   @override

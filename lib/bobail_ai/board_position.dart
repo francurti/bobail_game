@@ -5,8 +5,8 @@ import 'package:bobail_mobile/bobail_ai/board_hasher.dart';
 import 'package:bobail_mobile/bobail_ai/logger/log.dart';
 
 class BoardPosition {
-  static final BoardHasher boardHasher = BoardHasher();
-  int boardHashValue;
+  late final BoardHasher boardHasher;
+  late int boardHashValue;
 
   static BobailAiLogger log = BobailAiLogger();
 
@@ -21,12 +21,13 @@ class BoardPosition {
     this.whitePieces,
     this.blackPieces,
     this.isWhitesTurn,
-  ) : boardHashValue = boardHasher.computeHash(
-        bobailPosition: bobail,
-        whitePieces: whitePieces,
-        blackPieces: blackPieces,
-        isWhitesTurn: isWhitesTurn,
-      ) {
+  ) : boardHasher = BoardHasher() {
+    boardHashValue = boardHasher.computeHash(
+      bobailPosition: bobail,
+      whitePieces: whitePieces,
+      blackPieces: blackPieces,
+      isWhitesTurn: isWhitesTurn,
+    );
     occupiedPositions.add(bobail);
     occupiedPositions.addAll(whitePieces);
     occupiedPositions.addAll(blackPieces);
@@ -74,7 +75,6 @@ class BoardPosition {
             ? whitePieces.toList(growable: false)
             : blackPieces.toList(growable: false);
     List<int> bobailMoves = _getBobailMovesSorted();
-    // TODO: this sort would work on the early game but fall off when pieces are scattered.
     pieces.sort((a, b) => isWhitesTurn ? a.compareTo(b) : b.compareTo(a));
 
     for (int newBobailPosition in bobailMoves) {

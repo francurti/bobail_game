@@ -3,8 +3,7 @@ import 'dart:math';
 enum PieceKind { white, black, bobail }
 
 class BoardHasher {
-  static final Random _rng = Random();
-  static final int whiteToMoveHash = _random64(); // one extra hash value
+  final int whiteToMoveHash = _random64(); // no longer static
 
   final Map<PieceKind, List<int>> _zobristTable = {
     for (var kind in PieceKind.values)
@@ -12,8 +11,9 @@ class BoardHasher {
   };
 
   static int _random64() {
-    final hi = _rng.nextInt(1 << 32);
-    final lo = _rng.nextInt(1 << 32);
+    final rng = Random(); // avoid shared RNG
+    final hi = rng.nextInt(1 << 32);
+    final lo = rng.nextInt(1 << 32);
     return ((hi << 32) | lo) & 0xFFFFFFFFFFFFFFFF;
   }
 
@@ -25,15 +25,12 @@ class BoardHasher {
   }) {
     int hash = 0;
 
-    // Bobail
     hash ^= _zobristTable[PieceKind.bobail]![bobailPosition];
 
-    // White pieces
     for (final pos in whitePieces) {
       hash ^= _zobristTable[PieceKind.white]![pos];
     }
 
-    // Black pieces
     for (final pos in blackPieces) {
       hash ^= _zobristTable[PieceKind.black]![pos];
     }

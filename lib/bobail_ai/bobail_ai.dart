@@ -26,6 +26,7 @@ class BobailAi {
       );
 
   Movement getBestMove(int depth) {
+    log.d('${trackingBoard.occupiedPositions} ${trackingBoard.bobail}');
     log.i(
       'Init getBestMove with depth = $depth and its the whites turn: ${trackingBoard.isWhitesTurn} ',
     );
@@ -97,6 +98,15 @@ class BobailAi {
     AlphaBeta alphaBeta,
   ) {
     trackingBoard.advance(move);
+
+    if (trackingBoard.availableMoves().isEmpty) {
+      trackingBoard.undo(move);
+      return EvaluationResult(
+        trackingBoard.isWhitesTurn ? double.infinity : double.negativeInfinity,
+        move,
+      );
+    }
+
     var key = trackingBoard.boardHashValue;
     var eval = alphaBetaMinimax(depth - 1, AlphaBeta.copy(alphaBeta));
     trackingBoard.undo(move);
