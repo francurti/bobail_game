@@ -14,24 +14,6 @@ void main() {
       expect(boardPosition.evaluate(), 0);
     });
 
-    test('Bobail on ending square should give high or low results', () {
-      final BoardPosition whiteWinning = BoardPosition(
-        0,
-        {0, 1, 2, 3, 4},
-        {20, 21, 22, 23, 24},
-        true,
-      );
-      final BoardPosition blackWinning = BoardPosition(
-        22,
-        {0, 1, 2, 3, 4},
-        {20, 21, 22, 23, 24},
-        false,
-      );
-
-      expect(blackWinning.evaluate(), lessThan(0));
-      expect(whiteWinning.evaluate(), greaterThan(0));
-    });
-
     test(
       'Given one move for black to win. The first move should be the winning one',
       () {

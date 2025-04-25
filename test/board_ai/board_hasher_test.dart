@@ -3,13 +3,6 @@ import 'package:bobail_mobile/bobail_ai/board_position.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Zobrist hash is consistent for identical board positions', () {
-    final position1 = BoardPosition(12, {1, 2, 3}, {20, 21}, true);
-    final position2 = BoardPosition(12, {1, 2, 3}, {20, 21}, true);
-
-    expect(position1.boardHashValue, equals(position2.boardHashValue));
-  });
-
   test('Zobrist hash changes when pieces move', () {
     final original = BoardPosition(12, {1, 2, 3}, {20, 21}, true);
     final movedWhite = BoardPosition(

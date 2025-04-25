@@ -98,7 +98,7 @@ class PlayVsAIButton extends StatelessWidget {
           ),
         );
       },
-      child: const Text('Play vs AI (Coming Soon)'),
+      child: const Text('Play vs AI'),
     );
   }
 }

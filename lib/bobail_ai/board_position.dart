@@ -43,6 +43,9 @@ class BoardPosition {
   }
 
   double evaluate() {
+    if (isTerminalState()) {
+      return isWhitesTurn ? double.negativeInfinity : double.infinity;
+    }
     double bobailScoreCalculator(int bobailPosition) =>
         ((bobailPosition ~/ rowsInBoard) * -5) + 10;
     const double bobailWeight = 3;

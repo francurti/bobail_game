@@ -38,22 +38,29 @@ void main() {
       },
     );
 
-    test('Test playing the game', () {
-      final boardPosition = BoardPosition(
-        12,
-        {0, 1, 2, 3, 4},
-        {20, 21, 22, 23, 24},
+    test('Bobail Ai should not commit suicide', () {
+      final BoardPosition oneTurnToWinPosition = BoardPosition(
+        5,
+        {3, 4, 10, 15, 16},
+        {7, 8, 20, 21, 24},
         false,
       );
-      final bobailAi = BobailAi(boardPosition);
-      // Log the initial board state
-      //  0  1  2  3  4
-      //  5  6  7  8  9
-      // 10 11 12 13 14
-      // 15 16 17 18 19
-      // 20 21 22 23 24
+      final bobailAi = BobailAi(oneTurnToWinPosition);
+      final suggestedMovement = bobailAi.getBestMove(6);
 
-      bobailAi.getBestMove(9);
+      expect(suggestedMovement.bobailTo, isNot(0));
+    });
+
+    test('Bobail Ai should choose the only possible move even if loosing', () {
+      final BoardPosition oneTurnToWinPosition = BoardPosition(
+        5,
+        {6, 11, 10, 15, 16},
+        {7, 8, 20, 21, 24},
+        false,
+      );
+      final bobailAi = BobailAi(oneTurnToWinPosition);
+      final suggestedMovement = bobailAi.getBestMove(6);
+      expect(suggestedMovement.bobailTo, isIn([0, 1]));
     });
 
     test('second game should be with a fresh state', () {

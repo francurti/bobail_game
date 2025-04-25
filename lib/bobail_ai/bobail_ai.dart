@@ -26,70 +26,120 @@ class BobailAi {
       );
 
   Movement getBestMove(int depth) {
-    log.d('${trackingBoard.occupiedPositions} ${trackingBoard.bobail}');
-    log.i(
-      'Init getBestMove with depth = $depth and its the whites turn: ${trackingBoard.isWhitesTurn} ',
-    );
-    if (trackingBoard.isTerminalState()) {
-      throw StateError('The board has already reached a final state');
-    }
+    final rootMoves = trackingBoard.availableMoves().toList();
+    final nonSuicide =
+        rootMoves.where((move) {
+          trackingBoard.advance(move);
+          // opponent *wins* if bobail is trapped immediately
+          final bool oponentWon =
+              (trackingBoard.isWhitesTurn
+                  ? whiteWon(trackingBoard.bobail)
+                  : blackWon(trackingBoard.bobail));
+          trackingBoard.undo(move);
+
+          return !oponentWon;
+        }).toList();
+
+    // if everything is suicide (rare), fall back to all moves
+    final movesToSearch = nonSuicide.isNotEmpty ? nonSuicide : rootMoves;
+
     callsToMinimax = visitedSkipped = 0;
     visitedStates.clear();
 
     final result = alphaBetaMinimax(
       depth,
       AlphaBeta(double.negativeInfinity, double.infinity),
+      rootMoves: movesToSearch,
     );
+
     assert(result.move != null);
-    log.i(
-      'Bobail ai choose this move ${result.move} | ${result.score} with $callsToMinimax calls to minimax and $visitedSkipped skipped states',
-    );
     return result.move!;
   }
 
-  EvaluationResult alphaBetaMinimax(int depth, AlphaBeta alphaBeta) {
+  EvaluationResult alphaBetaMinimax(
+    int depth,
+    AlphaBeta ab, {
+    List<Movement>? rootMoves,
+  }) {
     callsToMinimax++;
 
     var key = trackingBoard.boardHashValue;
-    var moves = trackingBoard.availableMoves();
+    var moves = rootMoves ?? trackingBoard.availableMoves();
     var initialValue =
         trackingBoard.isWhitesTurn ? double.negativeInfinity : double.infinity;
 
     if (visitedStates.contains(key) || depth == 0) {
       visitedSkipped++;
-      return EvaluationResult(trackingBoard.evaluate(), null);
+      return EvaluationResult(trackingBoard.evaluate(), null, depth);
     }
 
-    if (trackingBoard.isTerminalState() || moves.isEmpty) {
-      return EvaluationResult(initialValue, null);
+    if (moves.isEmpty) {
+      return EvaluationResult(initialValue, null, depth);
+    }
+
+    if (trackingBoard.isTerminalState()) {
+      return EvaluationResult(
+        trackingBoard.isWhitesTurn ? double.infinity : double.negativeInfinity,
+        null,
+        depth,
+      );
     }
 
     double bestScore = initialValue;
     Movement? bestMove;
+    int? bestDepth;
 
     for (Movement move in moves) {
       var whitesTurn = trackingBoard.isWhitesTurn;
-      var eval = _simulateAndEvaluateMove(move, depth, alphaBeta).score;
-
-      if ((whitesTurn && eval > bestScore) ||
-          (!whitesTurn && eval < bestScore)) {
+      var eval = _simulateAndEvaluateMove(move, depth, ab);
+      var evalScore = eval.score;
+      var evalDepth = eval.depth;
+      if ((whitesTurn && evalScore > bestScore) ||
+          (!whitesTurn && evalScore < bestScore)) {
         bestMove = move;
-        bestScore = eval;
+        bestScore = evalScore;
+        bestDepth = evalDepth;
+      } else if (evalScore == bestScore) {
+        if (bestDepth == null ||
+            _shouldPreferMoveByDepth(
+              whitesTurn,
+              evalScore,
+              evalDepth,
+              bestDepth,
+            )) {
+          bestMove = move;
+          bestDepth = depth;
+        }
       }
 
       if (whitesTurn) {
-        alphaBeta.alpha = max(alphaBeta.alpha, eval);
-        if (alphaBeta.alpha >= alphaBeta.beta) {
+        ab.alpha = max(ab.alpha, evalScore);
+        if (ab.alpha > ab.beta) {
           break;
         }
       } else {
-        alphaBeta.beta = min(alphaBeta.beta, eval);
-        if (alphaBeta.beta <= alphaBeta.alpha) {
+        ab.beta = min(ab.beta, evalScore);
+        if (ab.beta < ab.alpha) {
           break;
         }
       }
     }
-    return EvaluationResult(bestScore, bestMove);
+    return EvaluationResult(bestScore, bestMove, depth);
+  }
+
+  bool _shouldPreferMoveByDepth(
+    bool whitesTurn,
+    double score,
+    int evalDepth,
+    int bestDepth,
+  ) {
+    final isWinning = (whitesTurn && score > 0) || (!whitesTurn && score < 0);
+
+    if (isWinning) {
+      return evalDepth < bestDepth; // Prefer quicker wins
+    } else {
+      return evalDepth > bestDepth; // Prefer slower losses
+    }
   }
 
   EvaluationResult _simulateAndEvaluateMove(
@@ -104,6 +154,7 @@ class BobailAi {
       return EvaluationResult(
         trackingBoard.isWhitesTurn ? double.infinity : double.negativeInfinity,
         move,
+        depth,
       );
     }
 
