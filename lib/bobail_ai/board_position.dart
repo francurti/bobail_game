@@ -15,6 +15,7 @@ class BoardPosition {
   final Set<int> blackPieces;
   final Set<int> occupiedPositions = <int>{};
   late bool isWhitesTurn;
+  int turn = 0;
 
   BoardPosition(
     this.bobail,
@@ -140,7 +141,7 @@ class BoardPosition {
 
   void advance(Movement movement) {
     _updateHashForAdvance(movement);
-
+    turn++;
     occupiedPositions.remove(movement.pieceFrom);
     occupiedPositions.remove(movement.bobailFrom);
     bobail = movement.bobailTo;
@@ -157,6 +158,7 @@ class BoardPosition {
   }
 
   void undo(Movement movement) {
+    turn--;
     isWhitesTurn = !isWhitesTurn;
     _updateHashForUndo(movement);
     occupiedPositions.remove(movement.pieceTo);

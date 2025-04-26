@@ -29,9 +29,9 @@ class GameInterface {
   }
 
   MoveResult makeCompleteMove(int from, int to, int bobailDestination) {
-    var bobail = bobailGame.bobail.positionIndex;
     var result = bobailGame.move(from, to, bobailDestination);
 
+    var bobail = bobailGame.bobail.positionIndex;
     if (result.isOk) {
       movements.add(
         Movement(

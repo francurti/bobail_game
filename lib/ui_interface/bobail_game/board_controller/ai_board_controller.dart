@@ -5,15 +5,21 @@ import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/selectab
 import 'package:flutter/material.dart';
 
 class AiBoardController extends BoardController with SelectableBoardLogic {
-  AiBoardController(super.boardSettings, this.isWhitePlayer)
-    : isAiTurn = !isWhitePlayer {
-    isolateAiManager.start();
+  AiBoardController(super.boardSettings, this.isWhitePlayer) {
+    // Set up the AI turn after start() completes.
+    isolateAiManager.start().then((value) {
+      isAiTurn = !isWhitePlayer;
+
+      if (isAiTurn) {
+        makeFirstMove();
+      }
+    });
   }
+
   static const int depth = 6;
   final bool isWhitePlayer;
-  //BobailAi bobailAi = BobailAi.base();
   final IsolateAiManager isolateAiManager = IsolateAiManager();
-  bool isAiTurn;
+  bool isAiTurn = false;
 
   @override
   Future<void> handleTap(BuildContext context, int position) async {
@@ -59,7 +65,15 @@ class AiBoardController extends BoardController with SelectableBoardLogic {
     //Make complete move based on the result
     game.makeCompleteMove(result.pieceFrom, result.pieceTo, result.bobailTo);
 
-    // if the ai messes it up I dont advance the board
+    isolateAiManager.advanceBoard(result);
+    isAiTurn = false;
+    refreshBoard();
+  }
+
+  Future<void> makeFirstMove() async {
+    await Future.delayed(Duration(milliseconds: 250));
+    var result = await isolateAiManager.getBestMove(depth);
+    game.makeMove(result.pieceFrom, result.pieceTo);
     isolateAiManager.advanceBoard(result);
     isAiTurn = false;
     refreshBoard();

@@ -26,6 +26,10 @@ class BobailAi {
       );
 
   Movement getBestMove(int depth) {
+    if (trackingBoard.turn == 0 && trackingBoard.isWhitesTurn) {
+      return Movement(12, 12, 1, 16);
+    }
+
     final rootMoves = trackingBoard.availableMoves().toList();
     final nonSuicide =
         rootMoves.where((move) {
@@ -53,6 +57,9 @@ class BobailAi {
     );
 
     assert(result.move != null);
+    log.i(
+      'Ai choose this move ${result.move} in $callsToMinimax with $visitedSkipped',
+    );
     return result.move!;
   }
 

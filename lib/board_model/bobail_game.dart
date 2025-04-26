@@ -99,7 +99,6 @@ class BobailGame {
     _lastMoved.pieceTo = finalPiece;
     _lastMoved.pieceFrom = oldBallPosition;
     _advanceToNextTurn();
-
     return moveCheck;
   }
 

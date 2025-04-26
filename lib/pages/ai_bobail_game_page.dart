@@ -5,7 +5,9 @@ import 'package:bobail_mobile/ui_interface/settings/board_view_settings.dart';
 import 'package:flutter/material.dart';
 
 class AiBobailGamePage extends StatefulWidget {
-  const AiBobailGamePage({super.key});
+  const AiBobailGamePage({super.key, required this.isWhitePlayer});
+
+  final bool isWhitePlayer;
 
   @override
   State<AiBobailGamePage> createState() => _AiBobailGamePageState();
@@ -18,7 +20,7 @@ class _AiBobailGamePageState extends State<AiBobailGamePage> {
   @override
   void initState() {
     super.initState();
-    viewSettings = BoardSettings.local(reversedBoard: false);
+    viewSettings = BoardSettings.ai(isWhitePlayer: widget.isWhitePlayer);
   }
 
   @override
@@ -27,7 +29,7 @@ class _AiBobailGamePageState extends State<AiBobailGamePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bobail'),
+        title: const Text('Bobail vs Ai'),
         elevation: 1,
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,
@@ -45,7 +47,12 @@ class _AiBobailGamePageState extends State<AiBobailGamePage> {
       body: Stack(
         children: [
           Center(
-            child: Board(controller: AiBoardController(viewSettings, true)),
+            child: Board(
+              controller: AiBoardController(
+                viewSettings,
+                viewSettings.isWhitePlayer,
+              ),
+            ),
           ),
           if (showTutorial)
             BobailTutorial(

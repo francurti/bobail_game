@@ -1,4 +1,4 @@
-import 'package:bobail_mobile/pages/ai_bobail_game_page.dart';
+import 'package:bobail_mobile/pages/ai_options_page.dart';
 import 'package:bobail_mobile/pages/local_bobail_game_page.dart';
 import 'package:bobail_mobile/ui_interface/util/mini_board.dart';
 import 'package:flutter/material.dart';
@@ -81,7 +81,7 @@ class PlayVsAIButton extends StatelessWidget {
         Navigator.of(context).push(
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 600),
-            pageBuilder: (_, animation, __) => const AiBobailGamePage(),
+            pageBuilder: (_, animation, __) => const AiOptionsPage(),
             transitionsBuilder: (_, animation, __, child) {
               final curved = CurvedAnimation(
                 parent: animation,
