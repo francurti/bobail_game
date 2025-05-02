@@ -142,13 +142,7 @@ class BoardView extends StatelessWidget {
                       ),
                     ),
 
-                    if (controller.isGameOver)
-                      GameOverOverlay(
-                        onRestart: controller.restartGame,
-                        winner: controller.winner,
-                      ),
-
-                    if (controller.blockBoard)
+                    if (controller.blockBoard && !controller.isGameOver)
                       Positioned.fill(
                         child: Container(
                           color: Colors.black45,
@@ -160,6 +154,12 @@ class BoardView extends StatelessWidget {
                             ),
                           ),
                         ),
+                      ),
+
+                    if (controller.isGameOver)
+                      GameOverOverlay(
+                        onRestart: controller.restartGame,
+                        winner: controller.winner,
                       ),
                   ],
                 ),
