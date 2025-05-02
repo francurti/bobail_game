@@ -51,28 +51,30 @@ class PieceIndicator {
 
     var allDirections = allAdjacentMoves
         .map((direction) => mc.getLine(currentPosition, direction))
-        .map((e) => _proccessPositionLine(e, boardIndicators))
+        .map((e) => _getAvailablePositionsForLine(e, boardIndicators))
         .fold<Set<int>>(<int>{}, (acc, element) => acc..addAll(element));
 
     return allDirections;
   }
 
-  Set<int> _proccessPositionLine(
+  Set<int> _getAvailablePositionsForLine(
     List<int> positions,
     BoardIndicators boardIndicators,
   ) {
     var boardViewModel = boardIndicators.boardState.boardViewModel;
     var currentBobailPosition =
         boardIndicators.bobailDestionationPosition ?? -1;
-    return positions
-        .takeWhile(
-          (position) => _positionIsAvailable(
-            boardViewModel[position],
-            position,
-            currentBobailPosition,
-          ),
-        )
-        .toSet();
+    var lastPosition =
+        positions
+            .takeWhile(
+              (position) => _positionIsAvailable(
+                boardViewModel[position],
+                position,
+                currentBobailPosition,
+              ),
+            )
+            .lastOrNull;
+    return lastPosition != null ? {lastPosition} : {};
   }
 
   bool _positionIsAvailable(
