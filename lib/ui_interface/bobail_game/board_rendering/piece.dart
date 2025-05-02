@@ -25,12 +25,12 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(seconds: 2),
     );
 
     _scaleAnimation = Tween<double>(
       begin: 1.0,
-      end: 1.05,
+      end: 1.1,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     if (shouldAnimate) {
@@ -72,11 +72,11 @@ class _PieceState extends State<Piece> with SingleTickerProviderStateMixin {
           color: baseColor,
           border: Border.all(color: borderColor, width: 3),
           boxShadow: [
-            if (isPreview)
+            if (shouldAnimate)
               BoxShadow(
-                color: Colors.lightGreenAccent.withAlpha(230),
-                blurRadius: 8,
-                spreadRadius: 2,
+                color: Colors.amberAccent.shade700,
+                blurRadius: 3,
+                spreadRadius: 1,
               ),
             if (!isPreview && isHighlight)
               BoxShadow(

@@ -32,6 +32,7 @@ class _LocalBobailGamePageState extends State<LocalBobailGamePage> {
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,
         actions: [
+          const Text('How to play'),
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () {
