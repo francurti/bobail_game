@@ -1,29 +1,25 @@
 import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/local_board_controller.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/board_rendering/board.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/bobail_game_tutorial.dart';
-import 'package:bobail_mobile/ui_interface/settings/board_view_settings.dart';
+import 'package:bobail_mobile/ui_interface/settings/board_settings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class LocalBobailGamePage extends StatefulWidget {
+class LocalBobailGamePage extends ConsumerStatefulWidget {
   const LocalBobailGamePage({super.key});
 
   @override
-  State<LocalBobailGamePage> createState() => _LocalBobailGamePageState();
+  ConsumerState<LocalBobailGamePage> createState() =>
+      _LocalBobailGamePageState();
 }
 
-class _LocalBobailGamePageState extends State<LocalBobailGamePage> {
-  late final BoardSettings viewSettings;
+class _LocalBobailGamePageState extends ConsumerState<LocalBobailGamePage> {
   bool showTutorial = false;
-
-  @override
-  void initState() {
-    super.initState();
-    viewSettings = BoardSettings.local(reversedBoard: false);
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final viewSettings = ref.watch(boardSettingsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -61,13 +57,13 @@ class _LocalBobailGamePageState extends State<LocalBobailGamePage> {
               ? null
               : FloatingActionButton.extended(
                 onPressed: () {
-                  setState(() {
-                    viewSettings.flipBoardView();
-                  });
+                  ref
+                      .read(boardSettingsProvider.notifier)
+                      .toggleReversedBoard();
                 },
                 icon: const Icon(Icons.sync_alt),
                 label: Text(
-                  !viewSettings.isReversedView
+                  !viewSettings.reversedBoard
                       ? 'White is facing Black'
                       : 'Passing the phone',
                 ),

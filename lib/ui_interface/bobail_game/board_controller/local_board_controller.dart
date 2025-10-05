@@ -7,7 +7,7 @@ class LocalBoardController extends BoardController with SelectableBoardLogic {
 
   @override
   bool isWhiteOnTheTop() {
-    return !boardSettings.isReversedView || boardIndicators.turn.isOdd;
+    return !boardSettings.reversedBoard || boardIndicators.turn.isOdd;
   }
 
   @override
@@ -22,7 +22,7 @@ class LocalBoardController extends BoardController with SelectableBoardLogic {
   }
 
   int _correctedIndex(int index) {
-    if (!boardSettings.isReversedView) return index;
+    if (!boardSettings.reversedBoard) return index;
     return boardIndicators.turn.isEven ? (25 - 1 - index) : index;
   }
 

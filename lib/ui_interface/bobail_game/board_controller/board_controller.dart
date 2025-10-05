@@ -1,6 +1,6 @@
 import 'package:bobail_mobile/board_presentation/board_indicators.dart';
 import 'package:bobail_mobile/board_presentation/game_interface.dart';
-import 'package:bobail_mobile/ui_interface/settings/board_view_settings.dart';
+import 'package:bobail_mobile/ui_interface/settings/board_settings_provider.dart';
 import 'package:flutter/material.dart';
 
 abstract class BoardController extends ChangeNotifier {
@@ -14,7 +14,6 @@ abstract class BoardController extends ChangeNotifier {
     _game = GameInterface.bobail();
     highlightedPiecesIndex = <int>{};
     boardIndicators = _game.getBoardIndicators();
-    boardSettings.addListener(notifyListeners);
   }
 
   GameInterface get game => _game;
