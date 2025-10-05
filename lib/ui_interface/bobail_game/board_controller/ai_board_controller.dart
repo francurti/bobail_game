@@ -3,79 +3,96 @@ import 'package:bobail_mobile/bobail_ai/isolate_implementation/isolate_ai_manage
 import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/board_controller.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/selectable_board_logic.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+final aiBoardControllerProvider =
+    NotifierProvider<AiBoardController, BoardState>(() {
+      final controller = AiBoardController();
+      controller.init();
+      return controller;
+    });
 
 class AiBoardController extends BoardController with SelectableBoardLogic {
-  AiBoardController(super.boardSettings, this.isWhitePlayer) {
-    // Set up the AI turn after start() completes.
-    isolateAiManager.start().then((value) {
-      isAiTurn = !isWhitePlayer;
+  static const int depth = 6;
+  final IsolateAiManager isolateAiManager = IsolateAiManager();
 
-      if (isAiTurn) {
-        makeFirstMove();
-      }
-    });
+  @override
+  BoardState build() {
+    // Initialize the board with the proper player color
+    return super.build().copyWith(
+      isWhitePlayer: boardSettings.isWhitePlayer,
+      isAiTurn: !boardSettings.isWhitePlayer,
+    );
   }
 
-  static const int depth = 6;
-  final bool isWhitePlayer;
-  final IsolateAiManager isolateAiManager = IsolateAiManager();
-  bool isAiTurn = false;
+  Future<void> init() async {
+    await isolateAiManager.start();
+
+    // Make first move if AI is white
+    if (state.isAiTurn) {
+      await makeFirstMove();
+    }
+  }
 
   @override
   Future<void> handleTap(BuildContext context, int position) async {
-    if (isAiTurn) return;
+    if (state.isAiTurn) return;
 
-    final tappedPiece = boardIndicators.piecesIndicator[position];
+    final tappedPiece = state.boardIndicators.piecesIndicator[position];
 
     if (_canSelectPiece(tappedPiece) || _canMoveTo(position)) {
       bool madeMove = handlePieceTap(context, position, tappedPiece);
 
       if (madeMove) {
-        isAiTurn = true;
-        notifyListeners();
+        state = state.copyWith(isAiTurn: true);
         await _makeAiMove();
       }
     }
   }
 
   bool _canSelectPiece(PieceIndicator? piece) {
-    if (isAiTurn) return false;
+    if (state.isAiTurn) return false;
     if (piece == null) return false;
     if (piece.isBobail && !piece.isMoveable) return true;
+
     final isCorrectColor =
-        (piece.isWhite && isWhitePlayer) ||
-        (piece.isBlack && !isWhitePlayer) ||
+        (piece.isWhite && state.isWhitePlayer) ||
+        (piece.isBlack && !state.isWhitePlayer) ||
         piece.isBobail;
+
     return piece.isMoveable && isCorrectColor;
   }
 
   bool _canMoveTo(int position) {
-    var piece = boardIndicators.piecesIndicator[position];
-
-    return piece == null && currentSelectedPiece != null;
+    final piece = state.boardIndicators.piecesIndicator[position];
+    return piece == null && state.currentSelectedPiece != null;
   }
 
   Future<void> _makeAiMove() async {
-    // Inform Ai of player move
-    var lastMove = game.movements.last;
-
+    final lastMove = state.game.movements.last;
     isolateAiManager.advanceBoard(lastMove);
-    // Find a response for the board;
-    var result = await isolateAiManager.getBestMove(depth);
-    //Make complete move based on the result
-    game.makeCompleteMove(result.pieceFrom, result.pieceTo, result.bobailTo);
+
+    final result = await isolateAiManager.getBestMove(depth);
+
+    state.game.makeCompleteMove(
+      result.pieceFrom,
+      result.pieceTo,
+      result.bobailTo,
+    );
 
     isolateAiManager.advanceBoard(result);
-    isAiTurn = false;
+    state = state.copyWith(isAiTurn: false);
     refreshBoard();
   }
 
   Future<void> makeFirstMove() async {
-    await Future.delayed(Duration(milliseconds: 250));
-    var result = await isolateAiManager.getBestMove(depth);
-    game.makeMove(result.pieceFrom, result.pieceTo);
+    await Future.delayed(const Duration(milliseconds: 250));
+    final result = await isolateAiManager.getBestMove(depth);
+
+    state.game.makeMove(result.pieceFrom, result.pieceTo);
     isolateAiManager.advanceBoard(result);
-    isAiTurn = false;
+
+    state = state.copyWith(isAiTurn: false);
     refreshBoard();
   }
 
@@ -85,5 +102,5 @@ class AiBoardController extends BoardController with SelectableBoardLogic {
   }
 
   @override
-  bool get blockBoard => isAiTurn;
+  bool get blockBoard => state.isAiTurn;
 }

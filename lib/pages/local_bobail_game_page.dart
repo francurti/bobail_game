@@ -3,22 +3,16 @@ import 'package:bobail_mobile/ui_interface/bobail_game/board_rendering/board.dar
 import 'package:bobail_mobile/ui_interface/bobail_game/bobail_game_tutorial.dart';
 import 'package:bobail_mobile/ui_interface/settings/board_settings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class LocalBobailGamePage extends ConsumerStatefulWidget {
+class LocalBobailGamePage extends HookConsumerWidget {
   const LocalBobailGamePage({super.key});
 
   @override
-  ConsumerState<LocalBobailGamePage> createState() =>
-      _LocalBobailGamePageState();
-}
-
-class _LocalBobailGamePageState extends ConsumerState<LocalBobailGamePage> {
-  bool showTutorial = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final showTutorial = useState(true);
     final viewSettings = ref.watch(boardSettingsProvider);
 
     return Scaffold(
@@ -32,28 +26,24 @@ class _LocalBobailGamePageState extends ConsumerState<LocalBobailGamePage> {
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () {
-              setState(() {
-                showTutorial = true;
-              });
+              showTutorial.value = true;
             },
           ),
         ],
       ),
       body: Stack(
         children: [
-          Center(child: Board(controller: LocalBoardController(viewSettings))),
-          if (showTutorial)
+          Center(child: Board(controller: localBoardControllerProvider)),
+          if (showTutorial.value)
             BobailTutorial(
               onClose: () {
-                setState(() {
-                  showTutorial = false;
-                });
+                showTutorial.value = false;
               },
             ),
         ],
       ),
       floatingActionButton:
-          showTutorial
+          showTutorial.value
               ? null
               : FloatingActionButton.extended(
                 onPressed: () {
