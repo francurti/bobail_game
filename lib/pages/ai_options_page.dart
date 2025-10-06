@@ -1,6 +1,8 @@
 import 'package:bobail_mobile/pages/ai_bobail_game_page.dart';
+import 'package:bobail_mobile/ui_interface/settings/board_settings_provider.dart';
 import 'package:bobail_mobile/ui_interface/util/mini_board.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class AiOptionsPage extends StatelessWidget {
   const AiOptionsPage({super.key});
@@ -18,13 +20,13 @@ class AiOptionsPage extends StatelessWidget {
           children: [
             MiniBoard(),
             const SizedBox(height: 8),
-            const _AiModeOption(_PlayType.white),
+            _AiModeOption.white(),
             const SizedBox(height: 8),
 
-            const _AiModeOption(_PlayType.black),
+            _AiModeOption.black(),
             const SizedBox(height: 8),
 
-            const _AiModeOption(_PlayType.random),
+            _AiModeOption.random(),
           ],
         ),
       ),
@@ -32,39 +34,39 @@ class AiOptionsPage extends StatelessWidget {
   }
 }
 
-enum _PlayType {
-  white('White', Colors.white, _alwaysTrue),
-  black('Black', Colors.black, _alwaysFalse),
-  random('Random', Colors.black45, _randomBool);
+class _AiModeOption extends ConsumerWidget {
+  const _AiModeOption._(this._tag, this._color, this._isWhiteFn);
 
-  const _PlayType(this.tag, this.color, this.isWhitefn);
-  final String tag;
-  final Color color;
-  final bool Function() isWhitefn;
+  final String _tag;
+  final Color _color;
+  final bool Function() _isWhiteFn;
 
-  bool get isWhite => isWhitefn();
+  bool get isWhite => _isWhiteFn();
 
-  static bool _alwaysTrue() => true;
-  static bool _alwaysFalse() => false;
-  static bool _randomBool() => DateTime.now().microsecondsSinceEpoch % 2 == 0;
-}
+  // Factories
+  factory _AiModeOption.white() =>
+      _AiModeOption._('White', Colors.white, () => true);
 
-class _AiModeOption extends StatelessWidget {
-  const _AiModeOption(this.player);
-  final _PlayType player;
+  factory _AiModeOption.black() =>
+      _AiModeOption._('Black', Colors.black, () => false);
+
+  factory _AiModeOption.random() => _AiModeOption._(
+    'Random',
+    Colors.black45,
+    () => DateTime.now().microsecondsSinceEpoch % 2 == 0,
+  );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     return InkWell(
       onTap:
           () => {
+            ref.read(boardSettingsProvider.notifier).setWhitePlayer(isWhite),
             Navigator.of(context).push(
               PageRouteBuilder(
                 transitionDuration: const Duration(milliseconds: 600),
-                pageBuilder:
-                    (_, animation, __) =>
-                        AiBobailGamePage(isWhitePlayer: player.isWhite),
+                pageBuilder: (_, animation, __) => AiBobailGamePage(),
                 transitionsBuilder: (_, animation, __, child) {
                   final curved = CurvedAnimation(
                     parent: animation,
@@ -99,12 +101,12 @@ class _AiModeOption extends StatelessWidget {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: player.color,
+                  color: _color,
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
               const SizedBox(width: 5),
-              Text(player.tag, style: TextStyle(fontSize: 24)),
+              Text(_tag, style: TextStyle(fontSize: 24)),
             ],
           ),
         ),

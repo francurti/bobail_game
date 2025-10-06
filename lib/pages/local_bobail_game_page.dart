@@ -12,7 +12,7 @@ class LocalBobailGamePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final showTutorial = useState(true);
+    final showTutorial = useState(false);
     final viewSettings = ref.watch(boardSettingsProvider);
 
     return Scaffold(
@@ -22,7 +22,6 @@ class LocalBobailGamePage extends HookConsumerWidget {
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,
         actions: [
-          const Text('How to play'),
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () {
@@ -34,12 +33,13 @@ class LocalBobailGamePage extends HookConsumerWidget {
       body: Stack(
         children: [
           Center(child: Board(controller: localBoardControllerProvider)),
-          if (showTutorial.value)
+          if (showTutorial.value) ...[
             BobailTutorial(
               onClose: () {
                 showTutorial.value = false;
               },
             ),
+          ],
         ],
       ),
       floatingActionButton:
