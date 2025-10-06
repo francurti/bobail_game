@@ -15,20 +15,20 @@ mixin SelectableBoardLogic on BoardController {
     if (tappedPiece?.isMoveable ?? false) {
       _selectPiece(tappedPiece!, position);
       return false;
-    } else if (isEmpty && currentSelectedPiece != null) {
-      return _tryMove(context, currentSelectedPiece!, position);
+    } else if (isEmpty && state.currentSelectedPiece != null) {
+      return _tryMove(context, state.currentSelectedPiece!, position);
     }
     return false;
   }
 
   bool _tryMove(BuildContext context, int from, int to) {
     bool moveSuceeded = false;
-    final piece = boardIndicators.piecesIndicator[from];
+    final piece = state.boardIndicators.piecesIndicator[from];
 
     if (piece?.isBobail ?? false) {
-      game.bobailPreview = to;
+      state.game.bobailPreview = to;
     } else {
-      final result = game.makeMove(from, to);
+      final result = state.game.makeMove(from, to);
       if (!result.isOk) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -39,7 +39,7 @@ mixin SelectableBoardLogic on BoardController {
       } else {
         moveSuceeded = true;
       }
-      game.bobailPreview = null;
+      state.game.bobailPreview = null;
     }
 
     refreshBoard();
@@ -52,36 +52,43 @@ mixin SelectableBoardLogic on BoardController {
     } else {
       _handleStandardSelection(position);
     }
-    notifyListeners();
   }
 
   void _handleStandardSelection(int position) {
+    final currentSelectedPiece = state.currentSelectedPiece;
+    final boardIndicators = state.boardIndicators;
     if (currentSelectedPiece == position) {
       refreshBoard();
     } else {
-      highlightedPiecesIndex =
-          boardIndicators.piecesIndicator[position]?.movablePreview ?? {};
-      currentSelectedPiece = position;
-      boardIndicators = game.getBoardIndicators();
+      state = state.copyWith(
+        highlightedPiecesIndex:
+            boardIndicators.piecesIndicator[position]?.movablePreview ?? {},
+        currentSelectedPiece: position,
+        boardIndicators: state.game.getBoardIndicators(),
+      );
     }
   }
 
   void _handleBobailSelection(int position) {
-    if (currentSelectedPiece == position) {
-      game.bobailPreview = null;
+    if (state.currentSelectedPiece == position) {
+      state.game.bobailPreview = null;
       refreshBoard();
     } else {
-      currentSelectedPiece = position;
-      highlightedPiecesIndex =
-          boardIndicators.piecesIndicator[position]?.movablePreview ?? {};
-      boardIndicators = game.getBoardIndicators();
+      state = state.copyWith(
+        currentSelectedPiece: position,
+        highlightedPiecesIndex:
+            state.boardIndicators.piecesIndicator[position]?.movablePreview ??
+            {},
+        boardIndicators: state.game.getBoardIndicators(),
+      );
     }
   }
 
   void refreshBoard() {
-    currentSelectedPiece = null;
-    highlightedPiecesIndex.clear();
-    boardIndicators = game.getBoardIndicators();
-    notifyListeners();
+    state = state.copyWith(
+      currentSelectedPiece: null,
+      highlightedPiecesIndex: {},
+      boardIndicators: state.game.getBoardIndicators(),
+    );
   }
 }

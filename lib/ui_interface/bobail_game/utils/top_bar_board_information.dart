@@ -1,7 +1,9 @@
 import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/board_controller.dart';
+import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/local_board_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class TopBarBoardInformation extends StatelessWidget {
+class TopBarBoardInformation extends ConsumerWidget {
   const TopBarBoardInformation({
     super.key,
     required this.controller,
@@ -11,7 +13,9 @@ class TopBarBoardInformation extends StatelessWidget {
   final BoardController controller;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(localBoardControllerProvider);
+
     final theme = Theme.of(context);
     final tobBarTextStyle = const TextStyle(
       fontWeight: FontWeight.bold,
@@ -33,10 +37,7 @@ class TopBarBoardInformation extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Text('${controller.playerTurnName} turn', style: tobBarTextStyle),
-          Text(
-            'Turn ${controller.boardIndicators.turn}',
-            style: tobBarTextStyle,
-          ),
+          Text('Turn ${state.boardIndicators.turn}', style: tobBarTextStyle),
         ],
       ),
     );

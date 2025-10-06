@@ -1,62 +1,51 @@
 import 'package:bobail_mobile/ui_interface/bobail_game/board_controller/ai_board_controller.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/board_rendering/board.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/bobail_game_tutorial.dart';
-import 'package:bobail_mobile/ui_interface/settings/board_settings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class AiBobailGamePage extends ConsumerStatefulWidget {
-  const AiBobailGamePage({super.key, required this.isWhitePlayer});
-
-  final bool isWhitePlayer;
+class AiBobailGamePage extends HookConsumerWidget {
+  const AiBobailGamePage({super.key});
 
   @override
-  ConsumerState<AiBobailGamePage> createState() => _AiBobailGamePageState();
-}
-
-class _AiBobailGamePageState extends ConsumerState<AiBobailGamePage> {
-  bool showTutorial = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final showTutorial = useState(false);
 
-    final viewSettings = ref.watch(boardSettingsProvider);
+    final controller = ref.read(aiBoardControllerProvider.notifier);
+    Future.microtask(() => controller.init());
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed:
+              () => {
+                ref.invalidate(aiBoardControllerProvider),
+                Navigator.of(context).pop(),
+              },
+        ),
         title: const Text('Bobail vs Ai'),
         elevation: 1,
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,
         actions: [
-          const Text('How to play'),
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () {
-              setState(() {
-                showTutorial = true;
-              });
+              showTutorial.value = true;
             },
           ),
         ],
       ),
       body: Stack(
         children: [
-          Center(
-            child: Board(
-              controller: AiBoardController(
-                viewSettings,
-                viewSettings.isWhitePlayer,
-              ),
-            ),
-          ),
-          if (showTutorial)
+          Center(child: Board(controller: aiBoardControllerProvider)),
+          if (showTutorial.value)
             BobailTutorial(
               onClose: () {
-                setState(() {
-                  showTutorial = false;
-                });
+                showTutorial.value = false;
               },
             ),
         ],

@@ -4,31 +4,30 @@ import 'package:bobail_mobile/ui_interface/bobail_game/game_over_overlay.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/utils/position_information.dart';
 import 'package:bobail_mobile/ui_interface/bobail_game/utils/top_bar_board_information.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 const int rowSize = 5;
 
-class Board extends StatelessWidget {
-  final BoardController controller;
+class Board extends ConsumerWidget {
+  final NotifierProvider<BoardController, BoardState> controller;
 
   const Board({super.key, required this.controller});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<BoardController>.value(
-      value: controller,
-      child: const BoardView(),
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(this.controller);
+    final controller = ref.read(this.controller.notifier);
+    return BoardView(state: state, controller: controller);
   }
 }
 
 class BoardView extends StatelessWidget {
-  const BoardView({super.key});
+  const BoardView({super.key, required this.state, required this.controller});
+  final BoardState state;
+  final BoardController controller;
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<BoardController>();
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final double screenWidth = MediaQuery.of(context).size.width;
@@ -93,7 +92,7 @@ class BoardView extends StatelessWidget {
                                     final renderIndex = controller
                                         .getCorrectIndex(index);
                                     final piece =
-                                        controller
+                                        state
                                             .boardIndicators
                                             .piecesIndicator[renderIndex];
 
@@ -101,12 +100,11 @@ class BoardView extends StatelessWidget {
                                         controller.lastPieceMoveFrom ?? -1;
 
                                     final info = PositionInformation(
-                                      controller.highlightedPiecesIndex
-                                          .contains(renderIndex),
-                                      controller.game.bobailPreview ==
-                                          renderIndex,
-                                      controller.currentSelectedPiece ==
-                                          renderIndex,
+                                      state.highlightedPiecesIndex.contains(
+                                        renderIndex,
+                                      ),
+                                      state.game.bobailPreview == renderIndex,
+                                      state.currentSelectedPiece == renderIndex,
                                       isLastMoved: (lastMoved) == renderIndex,
                                     );
 
